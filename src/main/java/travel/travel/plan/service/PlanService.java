@@ -55,7 +55,7 @@ public class PlanService{
         }
 
         Plan savedPlan = planRepository.save(planCreateReqDto.toEntity(member, destination));
-        return savedPlan.fromEntity();
+        return PlanResDto.fromEntity(savedPlan);
     }
 
 
@@ -68,7 +68,7 @@ public class PlanService{
                 .map(Location::fromThumbEntity)
                 .toList();
 
-        return existingPlan.fromEntityByDay(filteredLocations);
+        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
     }
 
 
@@ -80,7 +80,7 @@ public class PlanService{
                 .map(Location::fromThumbEntity)
                 .toList();
 
-        return existingPlan.fromEntityByDay(filteredLocations);
+        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
     }
 
     public Slice<PlanThumbResDto> planReadList(Long cursor, int size) {
@@ -91,7 +91,7 @@ public class PlanService{
         Pageable pageable = PageRequest.of(0, size);
         Slice<Plan> plans = planRepository.findByCursor(cursor, pageable);
 
-        return plans.map(Plan::fromThumbEntity);
+        return plans.map(PlanThumbResDto::fromThumbEntity);
     }
 
     public PlanResDto planUpdate(Long planId, PlanUpdateReqDto planUpdateReqDto) {
@@ -110,7 +110,7 @@ public class PlanService{
 
         Plan savedPlan = planRepository.save(existingPlan);
 
-        return savedPlan.fromEntity();
+        return PlanResDto.fromEntity(savedPlan);
 
     }
 
@@ -151,7 +151,7 @@ public class PlanService{
             locationService.autoScheduleOrder(reordered);
         }
 
-        return existingPlan.fromEntity();
+        return PlanResDto.fromEntity(existingPlan);
     }
 
     public PlanResDto planDelete(Long planId) {
@@ -168,6 +168,6 @@ public class PlanService{
         }
 
         planRepository.delete(existingPlan);
-        return existingPlan.fromEntity();
+        return PlanResDto.fromEntity(existingPlan);
     }
 }
