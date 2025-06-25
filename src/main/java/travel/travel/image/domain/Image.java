@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import travel.travel.image.dto.ImageResDto;
-
+import travel.travel.location.domain.Location;
 
 
 @Entity
@@ -21,6 +21,10 @@ public class Image {
     private Long imageId;
 
     private String imageUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     public ImageResDto fromEntity() {
         return ImageResDto.builder()

@@ -57,14 +57,14 @@ public class LocationService {
         Integer newOrderNumber = lastOrderNumber + 1;
 
         Location savedLocation = locationRepository.save(locationCreateReqDto.toEntity(plan, image, newOrderNumber));
-        return savedLocation.fromEntity();
+        return LocationResDto.fromEntity(savedLocation);
     }
 
     public LocationResDto locationRead(Long locationId) {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다."));
 
-        return location.fromEntity();
+        return LocationResDto.fromEntity(location);
     }
 
     public LocationResDto locationUpdate(Long locationId, LocationUpdateReqDto locationUpdateReqDto, List<MultipartFile> files) throws IOException {
@@ -82,7 +82,7 @@ public class LocationService {
                 .toList();
 
         location.updateInfo(locationUpdateReqDto, image);
-        return location.fromEntity();
+        return LocationResDto.fromEntity(location);
     }
 
     public LocationResDto locationDelete(Long locationId) {
@@ -97,7 +97,7 @@ public class LocationService {
 
         autoScheduleOrder(locationRepository.findByPlanAndDayOrderByScheduleOrderAsc(plan, day));
 
-        return existingLocation.fromEntity();
+        return LocationResDto.fromEntity(existingLocation);
     }
 
     public void checkForDuplicateScheduleOrder(List<Location> locations) {

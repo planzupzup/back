@@ -1,7 +1,6 @@
 package travel.travel.plan.dto;
 
 import lombok.*;
-import travel.travel.location.domain.Location;
 import travel.travel.location.dto.LocationThumbResDto;
 import travel.travel.plan.domain.Plan;
 
@@ -36,7 +35,7 @@ public class PlanResDto {
                 .destinationName(plan.getDestination().getDestinationName())
                 .locations(
                         (plan.getLocations() != null && !plan.getLocations().isEmpty())
-                                ? plan.getLocations().stream().map(Location::fromThumbEntity).toList()
+                                ? plan.getLocations().stream().map(LocationThumbResDto::fromThumbEntity).toList()
                                 : new ArrayList<>()
                 )
                 .build();
