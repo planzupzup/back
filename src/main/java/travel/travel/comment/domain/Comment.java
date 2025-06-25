@@ -40,19 +40,6 @@ public class Comment extends BaseEntity {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<Comment> children = new ArrayList<>();
 
-    public CommentResDto fromEntity() {
-        return CommentResDto.builder()
-                .commentId(commentId)
-                .nickName(member.getNickName())
-                .parentId(parent != null ? parent.getCommentId() : null)
-                .content(content)
-                .planId(plan != null ? plan.getPlanId() : null)
-                .children(children.stream()
-                        .map(Comment::fromEntity)
-                        .collect(Collectors.toList()))
-                .build();
-    }
-
     public void updateComment(String content) {
         this.content = content;
     }

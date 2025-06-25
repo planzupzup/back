@@ -32,7 +32,7 @@ public class LocationService {
     private final ImageService imageService;
     private final ImageRepository imageRepository;
 
-    public LocationResDto locationCreate(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) throws IOException {
+    public LocationResDto createLocation(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) throws IOException {
         Plan plan = planRepository.findById(locationCreateReqDto.getPlanId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -57,17 +57,17 @@ public class LocationService {
         Integer newOrderNumber = lastOrderNumber + 1;
 
         Location savedLocation = locationRepository.save(locationCreateReqDto.toEntity(plan, image, newOrderNumber));
-        return savedLocation.fromEntity();
+        return LocationResDto.fromEntity(savedLocation);
     }
 
-    public LocationResDto locationRead(Long locationId) {
+    public LocationResDto getLocation(Long locationId) {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다."));
 
-        return location.fromEntity();
+        return LocationResDto.fromEntity(location);
     }
 
-    public LocationResDto locationUpdate(Long locationId, LocationUpdateReqDto locationUpdateReqDto, List<MultipartFile> files) throws IOException {
+    public LocationResDto updateLocation(Long locationId, LocationUpdateReqDto locationUpdateReqDto, List<MultipartFile> files) throws IOException {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 지역이 존재하지 않습니다."));
 
@@ -82,10 +82,10 @@ public class LocationService {
                 .toList();
 
         location.updateInfo(locationUpdateReqDto, image);
-        return location.fromEntity();
+        return LocationResDto.fromEntity(location);
     }
 
-    public LocationResDto locationDelete(Long locationId) {
+    public LocationResDto deleteLocation(Long locationId) {
         Location existingLocation = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 위치입니다."));
         Integer day = existingLocation.getDay();
@@ -97,7 +97,7 @@ public class LocationService {
 
         autoScheduleOrder(locationRepository.findByPlanAndDayOrderByScheduleOrderAsc(plan, day));
 
-        return existingLocation.fromEntity();
+        return LocationResDto.fromEntity(existingLocation);
     }
 
     public void checkForDuplicateScheduleOrder(List<Location> locations) {

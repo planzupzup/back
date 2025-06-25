@@ -29,7 +29,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final PlanRepository planRepository;
 
-    public CommentResDto commentCreate(CommentCreateReqDto commentCreateReqDto) {
+    public CommentResDto createComment(CommentCreateReqDto commentCreateReqDto) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -46,10 +46,10 @@ public class CommentService {
         }
 
         Comment savedComment = commentRepository.save(commentCreateReqDto.toEntity(member, parent, plan));
-        return savedComment.fromEntity();
+        return CommentResDto.fromEntity(savedComment);
     }
 
-    public CommentResDto commentUpdate(Long commentId, CommentUpdateReqDto commentUpdateReqDto) {
+    public CommentResDto updateComment(Long commentId, CommentUpdateReqDto commentUpdateReqDto) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -63,10 +63,10 @@ public class CommentService {
         }
 
         findComment.updateComment(commentUpdateReqDto.getContent());
-        return findComment.fromEntity();
+        return CommentResDto.fromEntity(findComment);
     }
 
-    public CommentResDto commentDelete(Long commentId) {
+    public CommentResDto deleteComment(Long commentId) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -80,7 +80,7 @@ public class CommentService {
         }
 
         commentRepository.delete(findComment);
-        return findComment.fromEntity();
+        return CommentResDto.fromEntity(findComment);
     }
 
     public List<CommentResDto> getCommentsByPost(Long planId) {
@@ -88,7 +88,7 @@ public class CommentService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
         List<Comment> topLevelComments = commentRepository.findByPlanAndParentIsNull(findPlan);
         return topLevelComments.stream()
-                .map(Comment::fromEntity)
+                .map(CommentResDto::fromEntity)
                 .collect(Collectors.toList());
     }
 }

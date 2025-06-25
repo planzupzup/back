@@ -41,7 +41,7 @@ public class PlanService{
     private final LocationRepository locationRepository;
     private final LocationService locationService;
 
-    public PlanResDto planCreate(PlanCreateReqDto planCreateReqDto) {
+    public PlanResDto createPlan(PlanCreateReqDto planCreateReqDto) {
 //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -55,35 +55,35 @@ public class PlanService{
         }
 
         Plan savedPlan = planRepository.save(planCreateReqDto.toEntity(member, destination));
-        return savedPlan.fromEntity();
+        return PlanResDto.fromEntity(savedPlan);
     }
 
 
-    public PlanResDto planReadByDay(Long planId, Integer day) {
+    public PlanResDto getPlanByDay(Long planId, Integer day) {
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
         List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
                 .filter(location -> location.getDay().equals(day))
-                .map(Location::fromThumbEntity)
+                .map(LocationThumbResDto::fromThumbEntity)
                 .toList();
 
-        return existingPlan.fromEntityByDay(filteredLocations);
+        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
     }
 
 
-    public PlanResDto planRead(Long planId) {
+    public PlanResDto getPlan(Long planId) {
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
         List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
-                .map(Location::fromThumbEntity)
+                .map(LocationThumbResDto::fromThumbEntity)
                 .toList();
 
-        return existingPlan.fromEntityByDay(filteredLocations);
+        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
     }
 
-    public Slice<PlanThumbResDto> planReadList(Long cursor, int size) {
+    public Slice<PlanThumbResDto> getAllPlan(Long cursor, int size) {
         if (cursor == null) {
             cursor = 0L;
         }
@@ -91,10 +91,10 @@ public class PlanService{
         Pageable pageable = PageRequest.of(0, size);
         Slice<Plan> plans = planRepository.findByCursor(cursor, pageable);
 
-        return plans.map(Plan::fromThumbEntity);
+        return plans.map(PlanThumbResDto::fromThumbEntity);
     }
 
-    public PlanResDto planUpdate(Long planId, PlanUpdateReqDto planUpdateReqDto) {
+    public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -110,7 +110,7 @@ public class PlanService{
 
         Plan savedPlan = planRepository.save(existingPlan);
 
-        return savedPlan.fromEntity();
+        return PlanResDto.fromEntity(savedPlan);
 
     }
 
@@ -151,10 +151,10 @@ public class PlanService{
             locationService.autoScheduleOrder(reordered);
         }
 
-        return existingPlan.fromEntity();
+        return PlanResDto.fromEntity(existingPlan);
     }
 
-    public PlanResDto planDelete(Long planId) {
+    public PlanResDto deletePlan(Long planId) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -168,6 +168,6 @@ public class PlanService{
         }
 
         planRepository.delete(existingPlan);
-        return existingPlan.fromEntity();
+        return PlanResDto.fromEntity(existingPlan);
     }
 }
