@@ -41,7 +41,7 @@ public class PlanService{
     private final LocationRepository locationRepository;
     private final LocationService locationService;
 
-    public PlanResDto planCreate(PlanCreateReqDto planCreateReqDto) {
+    public PlanResDto createPlan(PlanCreateReqDto planCreateReqDto) {
 //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -59,7 +59,7 @@ public class PlanService{
     }
 
 
-    public PlanResDto planReadByDay(Long planId, Integer day) {
+    public PlanResDto getPlanByDay(Long planId, Integer day) {
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -72,7 +72,7 @@ public class PlanService{
     }
 
 
-    public PlanResDto planRead(Long planId) {
+    public PlanResDto getPlan(Long planId) {
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -83,7 +83,7 @@ public class PlanService{
         return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
     }
 
-    public Slice<PlanThumbResDto> planReadList(Long cursor, int size) {
+    public Slice<PlanThumbResDto> getAllPlan(Long cursor, int size) {
         if (cursor == null) {
             cursor = 0L;
         }
@@ -94,7 +94,7 @@ public class PlanService{
         return plans.map(PlanThumbResDto::fromThumbEntity);
     }
 
-    public PlanResDto planUpdate(Long planId, PlanUpdateReqDto planUpdateReqDto) {
+    public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -154,7 +154,7 @@ public class PlanService{
         return PlanResDto.fromEntity(existingPlan);
     }
 
-    public PlanResDto planDelete(Long planId) {
+    public PlanResDto deletePlan(Long planId) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))

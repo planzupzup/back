@@ -29,7 +29,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final PlanRepository planRepository;
 
-    public CommentResDto commentCreate(CommentCreateReqDto commentCreateReqDto) {
+    public CommentResDto createComment(CommentCreateReqDto commentCreateReqDto) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -49,7 +49,7 @@ public class CommentService {
         return CommentResDto.fromEntity(savedComment);
     }
 
-    public CommentResDto commentUpdate(Long commentId, CommentUpdateReqDto commentUpdateReqDto) {
+    public CommentResDto updateComment(Long commentId, CommentUpdateReqDto commentUpdateReqDto) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -66,7 +66,7 @@ public class CommentService {
         return CommentResDto.fromEntity(findComment);
     }
 
-    public CommentResDto commentDelete(Long commentId) {
+    public CommentResDto deleteComment(Long commentId) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))

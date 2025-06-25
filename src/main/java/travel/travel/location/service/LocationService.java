@@ -32,7 +32,7 @@ public class LocationService {
     private final ImageService imageService;
     private final ImageRepository imageRepository;
 
-    public LocationResDto locationCreate(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) throws IOException {
+    public LocationResDto createLocation(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) throws IOException {
         Plan plan = planRepository.findById(locationCreateReqDto.getPlanId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -60,14 +60,14 @@ public class LocationService {
         return LocationResDto.fromEntity(savedLocation);
     }
 
-    public LocationResDto locationRead(Long locationId) {
+    public LocationResDto getLocation(Long locationId) {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다."));
 
         return LocationResDto.fromEntity(location);
     }
 
-    public LocationResDto locationUpdate(Long locationId, LocationUpdateReqDto locationUpdateReqDto, List<MultipartFile> files) throws IOException {
+    public LocationResDto updateLocation(Long locationId, LocationUpdateReqDto locationUpdateReqDto, List<MultipartFile> files) throws IOException {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 지역이 존재하지 않습니다."));
 
@@ -85,7 +85,7 @@ public class LocationService {
         return LocationResDto.fromEntity(location);
     }
 
-    public LocationResDto locationDelete(Long locationId) {
+    public LocationResDto deleteLocation(Long locationId) {
         Location existingLocation = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 위치입니다."));
         Integer day = existingLocation.getDay();
