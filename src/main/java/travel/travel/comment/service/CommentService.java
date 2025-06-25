@@ -43,6 +43,9 @@ public class CommentService {
         if (commentCreateReqDto.getParentId() != null) {
             parent = commentRepository.findById(commentCreateReqDto.getParentId())
                     .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+            if (parent.getParent() != null) {
+                throw new IllegalArgumentException("대댓글(2단계)까지만 작성할 수 있습니다.");
+            }
         }
 
         Comment savedComment = commentRepository.save(commentCreateReqDto.toEntity(member, parent, plan));
