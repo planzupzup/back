@@ -1,7 +1,6 @@
 package travel.travel.bookmark.service;
 
 
-
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +23,8 @@ public class BookmarkService {
     private final PlanRepository planRepository;
     
     public void addBookmark(Long planId) {
-        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
@@ -44,7 +44,8 @@ public class BookmarkService {
     }
 
     public void removeBookmark(Long planId) {
-        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 

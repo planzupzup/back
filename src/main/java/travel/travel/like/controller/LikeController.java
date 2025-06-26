@@ -27,7 +27,7 @@ public class LikeController {
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "좋아요취소가 성공적으로 되었습니다.", null), HttpStatus.OK);
     }
 
-    @GetMapping("/{commentId}/likes/count")
+    @GetMapping("/{commentId}/like")
     public ResponseEntity<CommonResDto> getLikeCount(@PathVariable Long commentId) {
         Long likeCount = likeService.getLikeCount(commentId);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "좋아요개수조회가 성공적으로 되었습니다.", likeCount), HttpStatus.OK);

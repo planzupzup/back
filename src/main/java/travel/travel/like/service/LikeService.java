@@ -25,7 +25,8 @@ public class LikeService {
     private final PlanRepository planRepository;
 
     public void addLike(Long commentId) {
-        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
@@ -48,7 +49,8 @@ public class LikeService {
     }
 
     public void removeLike(Long commentId) {
-        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String memberId = "1";
         Member member = memberRepository.findById(Long.valueOf(memberId))
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 

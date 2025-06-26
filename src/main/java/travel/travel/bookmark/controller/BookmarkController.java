@@ -28,7 +28,7 @@ public class BookmarkController {
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "북마크취소가 성공적으로 되었습니다.", null), HttpStatus.OK);
     }
 
-    @GetMapping("/{planId}/bookmark/count")
+    @GetMapping("/{planId}/bookmark")
     public ResponseEntity<CommonResDto> getBookmarkCount(@PathVariable Long planId) {
         Long bookmarkCount = bookmarkService.getBookmarkCount(planId);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "북마크개수조회가 성공적으로 되었습니다.", bookmarkCount), HttpStatus.OK);
