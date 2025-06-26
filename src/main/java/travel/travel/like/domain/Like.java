@@ -7,12 +7,11 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import travel.travel.comment.domain.Comment;
 import travel.travel.member.domain.Member;
-import travel.travel.plan.domain.Plan;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "like")
+@Table(name = "'like'")
 @Builder
 public class Like {
 

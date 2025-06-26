@@ -35,9 +35,8 @@ public class CommentService {
         Member member = memberRepository.findById(Long.valueOf(memberId))
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
-//        Plan plan = planRepository.findById(commentCreateReqDto.getPlanId())
-//                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        Plan plan = null;
+        Plan plan = planRepository.findById(commentCreateReqDto.getPlanId())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
         Comment parent = null;
         if (commentCreateReqDto.getParentId() != null) {

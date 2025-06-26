@@ -22,16 +22,21 @@ public class CommentResDto {
     private List<CommentResDto> children;
 
     public static CommentResDto fromEntity(Comment comment) {
+        List<CommentResDto> childDtos = null;
+
+        if (comment.getChildren() != null && !comment.getChildren().isEmpty()) {
+            childDtos = comment.getChildren().stream()
+                    .map(CommentResDto::fromEntity)
+                    .collect(Collectors.toList());
+        }
+
         return CommentResDto.builder()
                 .commentId(comment.getCommentId())
                 .nickName(comment.getMember().getNickName())
                 .parentId(comment.getParent() != null ? comment.getParent().getCommentId() : null)
                 .content(comment.getContent())
-                .planId(comment.getPlan() != null ? comment.getPlan().getPlanId() : null)
-                .children(comment.getChildren().stream()
-                        .map(CommentResDto::fromEntity)
-                        .collect(Collectors.toList()))
+                .planId(comment.getPlan().getPlanId())
+                .children(childDtos)
                 .build();
     }
-
 }
