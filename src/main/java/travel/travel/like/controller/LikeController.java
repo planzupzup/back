@@ -11,7 +11,7 @@ import travel.travel.like.service.LikeService;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/comments")
+@RequestMapping("/api/comment")
 public class LikeController {
     private final LikeService likeService;
 
