@@ -2,8 +2,8 @@ package travel.travel.plan.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import travel.travel.bookmark.domain.Bookmark;
 import travel.travel.common.domain.BaseEntity;
-import travel.travel.like.domain.Like;
 import travel.travel.location.domain.Location;
 import travel.travel.member.domain.Member;
 
@@ -41,7 +41,7 @@ public class Plan extends BaseEntity {
     private Destination destination;
 
     @OneToMany(mappedBy = "plan")
-    private List<Like> likes = new ArrayList<>();
+    private List<Bookmark> bookmark = new ArrayList<>();
 
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
