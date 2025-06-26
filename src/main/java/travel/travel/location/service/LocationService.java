@@ -41,13 +41,16 @@ public class LocationService {
             throw new IllegalArgumentException("요청하신 day 값이 계획 범위를 벗어났습니다.");
         }
 
-        List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
-        List<Image> image =  imageResDtos.stream()
-                .map(img -> Image.builder()
-                        .imageId(img.getImageId())
-                        .imageUrl(img.getImageUrl())
-                        .build())
-                .toList();
+        List<Image> image = null;
+        if (files != null && !files.isEmpty()) {
+            List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
+            image =  imageResDtos.stream()
+                    .map(img -> Image.builder()
+                            .imageId(img.getImageId())
+                            .imageUrl(img.getImageUrl())
+                            .build())
+                    .toList();
+        }
 
         Location location = locationRepository.findTopByPlanAndDayOrderByScheduleOrderDesc(plan, locationCreateReqDto.getDay());
         Integer lastOrderNumber = 0;

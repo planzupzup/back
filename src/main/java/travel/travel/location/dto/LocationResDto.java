@@ -9,6 +9,7 @@ import travel.travel.location.domain.Location;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @NoArgsConstructor
@@ -33,7 +34,9 @@ public class LocationResDto {
 
     public static LocationResDto fromEntity(Location location) {
         LocalDate startDate = location.getPlan().getStartDate();
-        List<ImageResDto> imageResDtos = location.getImages().stream()
+        List<ImageResDto> imageResDtos = Optional.ofNullable(location.getImages())
+                .orElse(List.of())
+                .stream()
                 .map(img -> ImageResDto.builder()
                         .imageId(img.getImageId())
                         .imageUrl(img.getImageUrl())
