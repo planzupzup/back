@@ -1,29 +1,28 @@
-package travel.travel.like.domain;
+package travel.travel.bookmark.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import travel.travel.comment.domain.Comment;
 import travel.travel.member.domain.Member;
 import travel.travel.plan.domain.Plan;
 
+
+@NoArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(name = "like")
 @Builder
-public class Like {
+@Entity
+@Table(name = "bookmark")
+public class Bookmark {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long likeId;
+    private Long bookmarkId;
 
     @ManyToOne
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "comment_id")
-    private Comment comment;
+    @JoinColumn(name = "plan_id")
+    private Plan plan;
 }
