@@ -40,6 +40,12 @@ public class CommentController  {
     @GetMapping("/{planId}")
     public ResponseEntity<CommonResDto> getComments(@PathVariable Long planId) {
         List<CommentResDto> dtos = commentService.getCommentsByPost(planId);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "댓글삭제가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
+        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "플랜기준 부모 댓글조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
+    }
+
+    @GetMapping("/{planId}/{commentId}")
+    public ResponseEntity<CommonResDto> getComments(@PathVariable Long planId, @PathVariable Long commentId) {
+        List<CommentResDto> dtos = commentService.getCommentsByParent(planId, commentId);
+        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "부모댓글 기준으로 자식댓글 조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
     }
 }
