@@ -1,6 +1,7 @@
 package travel.travel.comment.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +39,12 @@ public class CommentController  {
     }
 
     @GetMapping("/{planId}")
-    public ResponseEntity<CommonResDto> getComments(@PathVariable Long planId) {
-        List<CommentResDto> dtos = commentService.getCommentsByPost(planId);
+    public ResponseEntity<CommonResDto> getComments(
+            @PathVariable Long planId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<CommentResDto> dtos = commentService.getCommentsByPost(planId, page, size);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "플랜기준 부모 댓글조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
     }
 
