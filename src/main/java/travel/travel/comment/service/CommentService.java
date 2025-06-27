@@ -93,4 +93,13 @@ public class CommentService {
                 .map(CommentResDto::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    public List<CommentResDto> getCommentsByParent(Long planId, Long commentId) {
+        Plan findedPlan = planRepository.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+        List<Comment> findComments = commentRepository.findChildCommentsByParentId(commentId);
+        return findComments.stream()
+                .map(CommentResDto::fromEntity)
+                .collect(Collectors.toList());
+    }
 }
