@@ -4,6 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import travel.travel.comment.domain.Comment;
 import travel.travel.comment.dto.CommentCreateReqDto;
@@ -85,17 +89,22 @@ public class CommentService {
         return CommentResDto.fromEntity(findComment);
     }
 
-    public List<CommentResDto> getCommentsByPost(Long planId) {
-        Plan findPlan = planRepository.findById(planId)
+    public List<CommentResDto> getCommentsByPost(Long planId, Long cursor, int size) {
+        planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        List<Comment> topLevelComments = commentRepository.findByPlanAndParentIsNull(findPlan);
-        return topLevelComments.stream()
+
+        if (cursor == null) {
+            cursor = 0L;
+        }
+        Pageable pageable = PageRequest.of(0, size, Sort.by("commentId").ascending());
+        List<Comment> comments = commentRepository.findCommentsAfterCursor(planId, cursor, pageable);
+        return comments.stream()
                 .map(CommentResDto::fromEntity)
                 .collect(Collectors.toList());
     }
 
     public List<CommentResDto> getCommentsByParent(Long planId, Long commentId) {
-        Plan findedPlan = planRepository.findById(planId)
+        planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
         List<Comment> findComments = commentRepository.findChildCommentsByParentId(commentId);
         return findComments.stream()
