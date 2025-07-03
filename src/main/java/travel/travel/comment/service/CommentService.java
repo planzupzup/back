@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import travel.travel.comment.domain.Comment;
@@ -83,6 +82,10 @@ public class CommentService {
 
         if (!member.equals(findComment.getMember())) {
             throw new IllegalStateException("본인 댓글만 수정할 수 있습니다.");
+        }
+
+        if (findComment.getParent() != null) {
+            findComment.getParent().getChildren().remove(findComment);
         }
 
         commentRepository.delete(findComment);

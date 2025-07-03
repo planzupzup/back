@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import travel.travel.bookmark.domain.Bookmark;
-import travel.travel.comment.dto.CommentResDto;
 import travel.travel.common.domain.BaseEntity;
 import travel.travel.like.domain.Like;
 import travel.travel.member.domain.Member;
@@ -14,7 +12,6 @@ import travel.travel.plan.domain.Plan;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -39,7 +36,7 @@ public class Comment extends BaseEntity {
     @ManyToOne
     private Plan plan;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
 
     @OneToMany(mappedBy = "comment")

@@ -9,6 +9,10 @@ import travel.travel.comment.domain.Comment;
 
 import java.util.List;
 
+import java.util.List;
+
+import java.util.List;
+
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query("""
