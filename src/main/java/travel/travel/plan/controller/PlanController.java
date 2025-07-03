@@ -3,6 +3,7 @@ package travel.travel.plan.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +64,7 @@ public class PlanController {
     }
 
     @PutMapping("/{planId}")
-    public ResponseEntity<CommonResDto> updatePlan(@PathVariable Long planId,@Valid @RequestBody PlanUpdateReqDto planUpdateReqDto) {
+    public ResponseEntity<CommonResDto> updatePlan(@PathVariable Long planId, @Valid @RequestBody PlanUpdateReqDto planUpdateReqDto) {
         PlanResDto dto = planService.updatePlan(planId, planUpdateReqDto);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
@@ -74,4 +75,13 @@ public class PlanController {
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
+    @GetMapping("/search/{keyword}")
+    public ResponseEntity<CommonResDto> getAllPlanByKeyword(
+            @PathVariable String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<PlanThumbResDto> dto = planService.getAllPlanByKeyword(keyword, page, size);
+        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
 }

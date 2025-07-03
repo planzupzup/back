@@ -5,9 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import travel.travel.location.domain.Location;
 import travel.travel.location.dto.LocationOrderUpdateReqDto;
@@ -169,5 +167,11 @@ public class PlanService{
 
         planRepository.delete(existingPlan);
         return PlanResDto.fromEntity(existingPlan);
+    }
+
+    public Page<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+        Page<Plan> plans = planRepository.searchByKeyword(keyword, pageable);
+        return plans.map(PlanThumbResDto::fromThumbEntity);
     }
 }
