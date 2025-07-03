@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -92,26 +93,21 @@ public class CommentService {
         return CommentResDto.fromEntity(findComment);
     }
 
-    public List<CommentResDto> getCommentsByPost(Long planId, Long cursor, int size) {
-        planRepository.findById(planId)
+    public Page<CommentResDto> getCommentsByPost(Long planId, int page, int size) {
+        Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-
-        if (cursor == null) {
-            cursor = 0L;
-        }
-        Pageable pageable = PageRequest.of(0, size, Sort.by("commentId").ascending());
-        List<Comment> comments = commentRepository.findCommentsAfterCursor(planId, cursor, pageable);
-        return comments.stream()
-                .map(CommentResDto::fromEntity)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("commentId").ascending());
+        Page<Comment> pageResult = commentRepository.findByPlanAndParentIsNull(plan, pageable);
+        return pageResult.map(CommentResDto::fromEntity);
     }
 
     public List<CommentResDto> getCommentsByParent(Long planId, Long commentId) {
         planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        List<Comment> findComments = commentRepository.findChildCommentsByParentId(commentId);
-        return findComments.stream()
-                .map(CommentResDto::fromEntity)
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+
+        return findComment.getChildren().stream().map(CommentResDto::fromEntity)
                 .collect(Collectors.toList());
     }
 }
