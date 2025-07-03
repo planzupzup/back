@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import travel.travel.comment.domain.Comment;
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Getter
@@ -18,7 +19,6 @@ public class CommentResDto {
     private Long planId;
 
     public static CommentResDto fromEntity(Comment comment) {
-
         return CommentResDto.builder()
                 .commentId(comment.getCommentId())
                 .nickName(comment.getMember().getNickName())
