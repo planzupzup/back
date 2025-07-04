@@ -10,4 +10,7 @@ import travel.travel.plan.domain.Plan;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Page<Comment> findByPlanAndParentIsNull(Plan plan, Pageable pageable);
+
+    Page<Comment> findByParent(Comment parent, Pageable pageable);
+
 }

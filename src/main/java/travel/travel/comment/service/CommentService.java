@@ -14,13 +14,13 @@ import travel.travel.comment.dto.CommentCreateReqDto;
 import travel.travel.comment.dto.CommentResDto;
 import travel.travel.comment.dto.CommentUpdateReqDto;
 import travel.travel.comment.repository.CommentRepository;
+import travel.travel.common.dto.PageApiResponse;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.repository.PlanRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -93,21 +93,42 @@ public class CommentService {
         return CommentResDto.fromEntity(findComment);
     }
 
-    public Page<CommentResDto> getCommentsByPost(Long planId, int page, int size) {
+    public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size) {
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        Pageable pageable = PageRequest.of(page, size, Sort.by("commentId").ascending());
-        Page<Comment> pageResult = commentRepository.findByPlanAndParentIsNull(plan, pageable);
-        return pageResult.map(CommentResDto::fromEntity);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Page<Comment> comments = commentRepository.findByPlanAndParentIsNull(plan, pageable);
+        List<CommentResDto> content = comments.map(CommentResDto::fromEntity).getContent();
+        return PageApiResponse .<CommentResDto>builder()
+                .content(content)
+                .page(comments.getNumber())
+                .size(comments.getSize())
+                .totalPages(comments.getTotalPages())
+                .totalElements(comments.getTotalElements())
+                .first(comments.isFirst())
+                .last(comments.isLast())
+                .build();
     }
 
-    public List<CommentResDto> getCommentsByParent(Long planId, Long commentId) {
+    public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size) {
         planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        Comment findComment = commentRepository.findById(commentId)
+        Comment parent = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
 
-        return findComment.getChildren().stream().map(CommentResDto::fromEntity)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+
+        Page<Comment> comments = commentRepository.findByParent(parent, pageable);
+        List<CommentResDto> content = comments.map(CommentResDto::fromEntity).getContent();
+
+        return PageApiResponse .<CommentResDto>builder()
+                .content(content)
+                .page(comments.getNumber())
+                .size(comments.getSize())
+                .totalPages(comments.getTotalPages())
+                .totalElements(comments.getTotalElements())
+                .first(comments.isFirst())
+                .last(comments.isLast())
+                .build();
     }
 }

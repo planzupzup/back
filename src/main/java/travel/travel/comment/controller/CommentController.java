@@ -1,7 +1,6 @@
 package travel.travel.comment.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,8 +9,9 @@ import travel.travel.comment.dto.CommentResDto;
 import travel.travel.comment.dto.CommentUpdateReqDto;
 import travel.travel.comment.service.CommentService;
 import travel.travel.common.dto.CommonResDto;
+import travel.travel.common.dto.PageApiResponse;
 
-import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -44,13 +44,17 @@ public class CommentController  {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<CommentResDto> dtos = commentService.getCommentsByPost(planId, page, size);
+        PageApiResponse<CommentResDto> dtos = commentService.getCommentsByPost(planId, page, size);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "플랜기준 부모 댓글조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}/{commentId}")
-    public ResponseEntity<CommonResDto> getComments(@PathVariable Long planId, @PathVariable Long commentId) {
-        List<CommentResDto> dtos = commentService.getCommentsByParent(planId, commentId);
+    public ResponseEntity<CommonResDto> getComments(
+            @PathVariable Long planId, @PathVariable Long commentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PageApiResponse<CommentResDto> dtos = commentService.getCommentsByParent(planId, commentId, page, size);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "부모댓글 기준으로 자식댓글 조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
     }
 }
