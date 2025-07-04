@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import travel.travel.common.dto.PageApiResponse;
 import travel.travel.location.domain.Location;
 import travel.travel.location.dto.LocationOrderUpdateReqDto;
 import travel.travel.location.dto.LocationThumbResDto;
@@ -81,15 +82,20 @@ public class PlanService{
         return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
     }
 
-    public Slice<PlanThumbResDto> getAllPlan(Long cursor, int size) {
-        if (cursor == null) {
-            cursor = 0L;
-        }
+    public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Page<Plan> plans = planRepository.findAll(pageable);
+        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::fromThumbEntity).getContent();
 
-        Pageable pageable = PageRequest.of(0, size);
-        Slice<Plan> plans = planRepository.findByCursor(cursor, pageable);
-
-        return plans.map(PlanThumbResDto::fromThumbEntity);
+        return PageApiResponse.<PlanThumbResDto>builder()
+                .content(content)
+                .page(plans.getNumber())
+                .size(plans.getSize())
+                .totalPages(plans.getTotalPages())
+                .totalElements(plans.getTotalElements())
+                .first(plans.isFirst())
+                .last(plans.isLast())
+                .build();
     }
 
     public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto) {
@@ -169,9 +175,19 @@ public class PlanService{
         return PlanResDto.fromEntity(existingPlan);
     }
 
-    public Page<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Plan> plans = planRepository.searchByKeyword(keyword, pageable);
-        return plans.map(PlanThumbResDto::fromThumbEntity);
+        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::fromThumbEntity).getContent();
+
+        return PageApiResponse.<PlanThumbResDto>builder()
+                .content(content)
+                .page(plans.getNumber())
+                .size(plans.getSize())
+                .totalPages(plans.getTotalPages())
+                .totalElements(plans.getTotalElements())
+                .first(plans.isFirst())
+                .last(plans.isLast())
+                .build();
     }
 }

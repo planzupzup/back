@@ -3,12 +3,11 @@ package travel.travel.plan.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import travel.travel.common.dto.CommonResDto;
+import travel.travel.common.dto.PageApiResponse;
 import travel.travel.location.dto.LocationOrderUpdateReqDto;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
@@ -46,10 +45,11 @@ public class PlanController {
 
     @GetMapping
     public ResponseEntity<CommonResDto> getAllPlan(
-            @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+            ) {
 
-        Slice<PlanThumbResDto> dto = planService.getAllPlan(cursor, size);
+        PageApiResponse<PlanThumbResDto> dto = planService.getAllPlan(page, size);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
@@ -81,7 +81,7 @@ public class PlanController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<PlanThumbResDto> dto = planService.getAllPlanByKeyword(keyword, page, size);
+        PageApiResponse<PlanThumbResDto> dto = planService.getAllPlanByKeyword(keyword, page, size);
         return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 }
