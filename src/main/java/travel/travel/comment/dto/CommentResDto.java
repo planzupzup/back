@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import travel.travel.comment.domain.Comment;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @AllArgsConstructor
 @Getter
@@ -17,6 +16,7 @@ public class CommentResDto {
     private Long parentId;
     private String nickName;
     private Long planId;
+    private Integer likesCount;
 
     public static CommentResDto fromEntity(Comment comment) {
         return CommentResDto.builder()
@@ -25,6 +25,7 @@ public class CommentResDto {
                 .parentId(comment.getParent() != null ? comment.getParent().getCommentId() : null)
                 .content(comment.getContent())
                 .planId(comment.getPlan().getPlanId())
+                .likesCount(comment.getLike().size())
                 .build();
     }
 }
