@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest    
     steps:      
       - name: SSH로 EC2에 접속하기        
-        uses: appleboy/ssh-action@v1.0.4     
+        uses: appleboy/ssh-action@v1 
         env: 
           APPLICATION_PROPERTIES: ${{ secrets.APPLICATION_PROPERTIES }}
         with:          
