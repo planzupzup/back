@@ -18,12 +18,11 @@ jobs:
           username: ${{ secrets.USERNAME }}          
           key: ${{ secrets.EC2_PRIVATE_KEY }}   
           envs: APPLICATION_PROPERTIES
-          script: |            
-            cd /home/ubuntu/app/back  
+          script: |       
+            cd /home/ubuntu/back
             rm -rf src/main/resources/application.yml
-            git pull origin main      
+            git pull origin develop
             echo "$APPLICATION_PROPERTIES" > src/main/resources/application.yml
-            ./gradlew clean build            
-            sudo fuser -k -n tcp 8080 || true            
+            ./gradlew clean build
+            sudo fuser -k -n tcp 8080 || true
             nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
-
