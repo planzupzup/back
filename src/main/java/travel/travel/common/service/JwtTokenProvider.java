@@ -30,23 +30,24 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expiration}")
     private long refreshMills;
 
-    public String generateAccessToken(String id) {
+    public String generateAccessToken(Long memberId) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessMills);
 
         return Jwts.builder()
-                .setSubject(id)
+                .setSubject(String.valueOf(memberId))
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
-    public String generateRefreshToken() {
+    public String generateRefreshToken(Long memberId) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + refreshMills);
 
         return Jwts.builder()
+                .setSubject(String.valueOf(memberId))
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
@@ -59,6 +60,17 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
+                .maxAge(60 * 30)
+                .build();
+    }
+
+    public ResponseCookie generateRefreshTokenCookie(String refreshToken) {
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .path("/")
+                .httpOnly(true)
+                .sameSite("None")
+                .secure(true)
+                .maxAge(60 * 60 * 24 * 7)
                 .build();
     }
 

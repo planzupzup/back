@@ -1,6 +1,5 @@
 package travel.travel.common.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +12,10 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import travel.travel.common.service.JwtTokenProvider;
+import travel.travel.member.domain.Member;
+import travel.travel.member.repository.MemberRepository;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -24,7 +23,7 @@ import java.util.Map;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
+    private final MemberRepository memberRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -33,17 +32,26 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         log.info("onAuthenticationSuccess");
 
         OAuth2User oAuth2User =  (OAuth2User)authentication.getPrincipal();
-        String id = String.valueOf(oAuth2User.getAttributes().get("id"));
+        String kakaoId = String.valueOf(oAuth2User.getAttributes().get("id"));
 
-        log.info("id = {}", id);
+        Member member = memberRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
-        String accessToken = jwtTokenProvider.generateAccessToken(id);
+        Long memberId = member.getId();
+        String accessToken = jwtTokenProvider.generateAccessToken(memberId);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(memberId);
+
+        member.updateRefreshToken(refreshToken);
+        memberRepository.save(member);
+
         ResponseCookie accessTokenCookie = jwtTokenProvider.generateAccessTokenCookie(accessToken);
+        ResponseCookie refreshTokenCookie = jwtTokenProvider.generateRefreshTokenCookie(refreshToken);
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         String redirectUrl = UriComponentsBuilder
-                .fromUriString("https://localhost:3000/auth")
+                .fromUriString("https://planzupzup.pages.dev")
                 .build()
                 .toUriString();
 
