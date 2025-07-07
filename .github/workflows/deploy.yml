@@ -18,7 +18,6 @@ jobs:
           username: ${{ secrets.USERNAME }}          
           key: ${{ secrets.EC2_PRIVATE_KEY }}   
           envs: APPLICATION_PROPERTIES
-          script_stop: true          
           script: |            
             cd /home/ubuntu/app/back  
             rm -rf src/main/resources/application.yml
