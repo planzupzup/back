@@ -19,7 +19,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-*.yml
+**src/main/resources/**
 .idea
 *.iws
 *.iml
