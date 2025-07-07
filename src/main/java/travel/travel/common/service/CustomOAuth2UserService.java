@@ -15,7 +15,6 @@ import travel.travel.member.repository.MemberRepository;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 
 
 @Slf4j
@@ -25,20 +24,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private final MemberRepository memberRepository;
 
-
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oauth2User = delegate.loadUser(userRequest);
 
-        // 카카오 사용자 정보 가져오기
-        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-
         Map<String, Object> attributes = oauth2User.getAttributes();
-        Long kakaoId = (Long) attributes.get("id");
-        log.info("kakao {}" , kakaoId);
+        String kakaoId = String.valueOf(attributes.get("id"));
+
+        log.info("kakaoId = {}", kakaoId);
+
         Member member = save(kakaoId);
 
+        String userNameAttributeName = userRequest.getClientRegistration()
+                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(member.getRole().toString())),
@@ -47,18 +46,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         );
     }
 
-    private Member save(Long kakaoId) {
-        Optional<Member> member = memberRepository
-                .findById(kakaoId);
-
-        if (member.isPresent()) {
-            log.info("member 이미 존재 : {}", member);
-            return member.get();
-        } else {
-            Member newMember = new Member(kakaoId);
-            memberRepository.save(newMember);
-            log.info("member 새로 존재 : {}", newMember);
-            return newMember;
-        }
+    private Member save(String kakaoId) {
+        return memberRepository.findByKakaoId(kakaoId)
+                .orElseGet(() -> {
+                    Member newMember = new Member(kakaoId);
+                    memberRepository.save(newMember);
+                    log.info("member 새로 존재 : {}", newMember);
+                    return newMember;
+                });
     }
 }
