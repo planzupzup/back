@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 public class PlanResDto {
     private Long planId;
+    private String nickName;
     private String title;
     private String content;
     private LocalDate startDate;
@@ -26,6 +27,7 @@ public class PlanResDto {
     public static PlanResDto of(Plan plan, List<LocationThumbResDto> locations) {
         return PlanResDto.builder()
                 .planId(plan.getPlanId())
+                .nickName(plan.getMember().getNickName())
                 .title(plan.getTitle())
                 .content(plan.getContent())
                 .startDate(plan.getStartDate())
