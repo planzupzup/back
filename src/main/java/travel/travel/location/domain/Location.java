@@ -45,16 +45,27 @@ public class Location {
     @JoinColumn(name = "location_id")
     private List<Image> images = new ArrayList<>();
 
-    public void updateInfo(LocationUpdateReqDto locationUpdateReqDto, List<Image> image) {
-        this.locationName = locationUpdateReqDto.getLocationName();
-        this.latitude = locationUpdateReqDto.getLatitude();
-        this.longitude = locationUpdateReqDto.getLongitude();
-        this.address = locationUpdateReqDto.getAddress();
-        this.description = locationUpdateReqDto.getDescription();
-        this.googleImageUrl = locationUpdateReqDto.getGoogleImageUrl();
-        this.types = locationUpdateReqDto.getTypes();
-        this.placeId = locationUpdateReqDto.getPlaceId();
-        this.images = image;
+    public void updateInfo(
+            String locationName,
+            double latitude,
+            double longitude,
+            String address,
+            String description,
+            String googleImageUrl,
+            String types,
+            String placeId,
+            List<Image> images
+    ) {
+        this.locationName = locationName;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.address = address;
+        this.description = description;
+        this.googleImageUrl = googleImageUrl;
+        this.types = types;
+        this.placeId = placeId;
+        this.images.clear();
+        this.images.addAll(images);
     }
 
     public void updateScheduleOrder(int scheduleOrder) {

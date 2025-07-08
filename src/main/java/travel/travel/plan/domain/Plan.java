@@ -46,10 +46,10 @@ public class Plan extends BaseEntity {
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
 
-    public void updatePlan(Plan plan) {
-        this.title = plan.getTitle();
-        this.content = plan.getContent();
-        this.startDate = plan.getStartDate();
-        this.endDate = plan.getEndDate();
+    public void updatePlan(String title, String content, LocalDate startDate, LocalDate endDate) {
+        this.title = title;
+        this.content = content;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 }

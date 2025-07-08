@@ -20,13 +20,4 @@ public class PlanUpdateReqDto {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public static Plan toEntity(PlanUpdateReqDto dto, Member member) {
-        return Plan.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .member(member)
-                .build();
-    }
 }

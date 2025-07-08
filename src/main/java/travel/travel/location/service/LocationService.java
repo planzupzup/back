@@ -82,7 +82,17 @@ public class LocationService {
                         .build())
                 .toList();
 
-        location.updateInfo(locationUpdateReqDto, image);
+        location.updateInfo(
+                locationUpdateReqDto.getLocationName(),
+                locationUpdateReqDto.getLatitude(),
+                locationUpdateReqDto.getLongitude(),
+                locationUpdateReqDto.getAddress(),
+                locationUpdateReqDto.getDescription(),
+                locationUpdateReqDto.getGoogleImageUrl(),
+                locationUpdateReqDto.getTypes(),
+                locationUpdateReqDto.getPlaceId(),
+                image
+        );
         return LocationResDto.of(location);
     }
 

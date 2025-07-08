@@ -108,7 +108,7 @@ public class PlanService{
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        existingPlan.updatePlan(PlanUpdateReqDto.toEntity(planUpdateReqDto, member));
+        existingPlan.updatePlan(planUpdateReqDto.getTitle(), planUpdateReqDto.getContent(), planUpdateReqDto.getStartDate(), planUpdateReqDto.getEndDate());
 
         if (!existingPlan.getMember().getId().equals(member.getId())) {
             throw new SecurityException("수정 권한이 없습니다.");

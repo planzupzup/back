@@ -18,7 +18,7 @@ public class CommentResDto {
     private Long planId;
     private Integer likesCount;
 
-    public static CommentResDto fromEntity(Comment comment) {
+    public static CommentResDto of(Comment comment) {
         return CommentResDto.builder()
                 .commentId(comment.getCommentId())
                 .nickName(comment.getMember().getNickName())

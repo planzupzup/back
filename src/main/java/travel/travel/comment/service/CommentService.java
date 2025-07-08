@@ -52,7 +52,7 @@ public class CommentService {
         }
 
         Comment savedComment = commentRepository.save(CommentCreateReqDto.toEntity(commentCreateReqDto, member, parent, plan));
-        return CommentResDto.fromEntity(savedComment);
+        return CommentResDto.of(savedComment);
     }
 
     public CommentResDto updateComment(Long commentId, CommentUpdateReqDto commentUpdateReqDto) {
@@ -69,7 +69,7 @@ public class CommentService {
         }
 
         findComment.updateComment(commentUpdateReqDto.getContent());
-        return CommentResDto.fromEntity(findComment);
+        return CommentResDto.of(findComment);
     }
 
     public CommentResDto deleteComment(Long commentId) {
@@ -90,7 +90,7 @@ public class CommentService {
         }
 
         commentRepository.delete(findComment);
-        return CommentResDto.fromEntity(findComment);
+        return CommentResDto.of(findComment);
     }
 
     public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size) {
@@ -98,7 +98,7 @@ public class CommentService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Comment> comments = commentRepository.findByPlanAndParentIsNull(plan, pageable);
-        List<CommentResDto> content = comments.map(CommentResDto::fromEntity).getContent();
+        List<CommentResDto> content = comments.map(CommentResDto::of).getContent();
         return PageApiResponse .<CommentResDto>builder()
                 .content(content)
                 .page(comments.getNumber())
@@ -119,7 +119,7 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
 
         Page<Comment> comments = commentRepository.findByParent(parent, pageable);
-        List<CommentResDto> content = comments.map(CommentResDto::fromEntity).getContent();
+        List<CommentResDto> content = comments.map(CommentResDto::of).getContent();
 
         return PageApiResponse .<CommentResDto>builder()
                 .content(content)
