@@ -16,36 +16,33 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<CommonErrorDto> IllegalArgumentExceptionHandler (IllegalArgumentException e) {
         e.printStackTrace();
-        return new ResponseEntity<>(new CommonErrorDto(HttpStatus.BAD_REQUEST, e.getMessage()),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.BAD_REQUEST, e.getMessage()),HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonErrorDto> MethodArgumentNotValidExceptionHandler (MethodArgumentNotValidException e) {
         e.printStackTrace();
-        return new ResponseEntity<>(new CommonErrorDto(HttpStatus.BAD_REQUEST, e.getFieldError().getDefaultMessage()),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.BAD_REQUEST, e.getFieldError().getDefaultMessage()),HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<CommonErrorDto> EntityNotFoundExceptionHandler (EntityNotFoundException e) {
         System.out.println(e.getMessage());
-        return new ResponseEntity<>(new CommonErrorDto(HttpStatus.BAD_REQUEST, e.getMessage()),HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.BAD_REQUEST, e.getMessage()),HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<CommonErrorDto> SecurityExceptionHandler(SecurityException e) {
         e.printStackTrace();
-        return new ResponseEntity<>(
-                new CommonErrorDto(HttpStatus.FORBIDDEN, e.getMessage()),
-                HttpStatus.FORBIDDEN
-        );
+        return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.FORBIDDEN, e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonErrorDto> runtimeExceptionHandler (RuntimeException e) {
         e.printStackTrace();
-        return new ResponseEntity<>(new CommonErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CommonErrorDto> exceptionHandler (Exception e) {
         e.printStackTrace();
-        return new ResponseEntity<>(new CommonErrorDto(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

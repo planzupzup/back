@@ -18,18 +18,18 @@ public class LikeController {
     @PostMapping("/{commentId}/like")
     public ResponseEntity<CommonResDto> addLike (@PathVariable Long commentId) {
         likeService.addLike(commentId);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "좋아요가 성공적으로 되었습니다.", null), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "좋아요가 성공적으로 되었습니다.", null), HttpStatus.OK);
     }
 
     @DeleteMapping("/{commentId}/like")
     public ResponseEntity<CommonResDto> removeLike(@PathVariable Long commentId) {
         likeService.removeLike(commentId);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "좋아요취소가 성공적으로 되었습니다.", null), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "좋아요취소가 성공적으로 되었습니다.", null), HttpStatus.OK);
     }
 
     @GetMapping("/{commentId}/like")
     public ResponseEntity<CommonResDto> getLikeCount(@PathVariable Long commentId) {
         Long likeCount = likeService.getLikeCount(commentId);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "좋아요개수조회가 성공적으로 되었습니다.", likeCount), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "좋아요개수조회가 성공적으로 되었습니다.", likeCount), HttpStatus.OK);
     }
 }

@@ -14,10 +14,4 @@ import travel.travel.image.domain.Image;
 public class ImageResDto {
     private Long imageId;
     private String imageUrl;
-
-    public Image toEntity() {
-        return Image.builder()
-                .imageUrl(this.imageUrl).build();
-
-    }
 }

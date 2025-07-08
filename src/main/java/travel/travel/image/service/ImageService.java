@@ -27,7 +27,7 @@ public class ImageService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public List<ImageResDto> uploadFiles(List<MultipartFile> multipartFiles) throws IOException {
+    public List<ImageResDto> uploadFiles(List<MultipartFile> multipartFiles) {
         if (multipartFiles == null || multipartFiles.isEmpty()) {
             throw new IllegalArgumentException("업로드할 파일이 없습니다.");
         }

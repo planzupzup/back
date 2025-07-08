@@ -23,19 +23,19 @@ public class CommentController  {
     @PostMapping
     public ResponseEntity<CommonResDto> createComment(@RequestBody CommentCreateReqDto commentCreateReqDto) {
         CommentResDto dto = commentService.createComment(commentCreateReqDto);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.CREATED, "댓글저장이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "댓글저장이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{commentId}")
     public ResponseEntity<CommonResDto> updateComment(@PathVariable Long commentId, @RequestBody CommentUpdateReqDto commentUpdateReqDto) {
         CommentResDto dto = commentService.updateComment(commentId,commentUpdateReqDto);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "댓글수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "댓글수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<CommonResDto> deleteComment(@PathVariable Long commentId) {
         CommentResDto dto = commentService.deleteComment(commentId);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "댓글삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "댓글삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}")
@@ -45,7 +45,7 @@ public class CommentController  {
             @RequestParam(defaultValue = "10") int size
     ) {
         PageApiResponse<CommentResDto> dtos = commentService.getCommentsByPost(planId, page, size);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "플랜기준 부모 댓글조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "플랜기준 부모 댓글조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}/{commentId}")
@@ -55,6 +55,6 @@ public class CommentController  {
             @RequestParam(defaultValue = "10") int size
     ) {
         PageApiResponse<CommentResDto> dtos = commentService.getCommentsByParent(planId, commentId, page, size);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "부모댓글 기준으로 자식댓글 조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "부모댓글 기준으로 자식댓글 조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);
     }
 }

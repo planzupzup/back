@@ -28,19 +28,19 @@ public class PlanController {
     @PostMapping
     public ResponseEntity<CommonResDto> createPlan(@Valid @RequestBody PlanCreateReqDto planCreateReqDto) {
         PlanResDto dto = planService.createPlan(planCreateReqDto);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.CREATED, "계획생성이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "계획생성이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
 
     @GetMapping("/{planId}")
     public ResponseEntity<CommonResDto> getPlan(@PathVariable Long planId) {
         PlanResDto dto = planService.getPlan(planId);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획상세조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획상세조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}/{day}")
     public ResponseEntity<CommonResDto> getPlanByDay(@PathVariable Long planId, @PathVariable Integer day) {
         PlanResDto dto = planService.getPlanByDay(planId, day);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "날짜별 지역목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "날짜별 지역목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @GetMapping
@@ -50,7 +50,7 @@ public class PlanController {
             ) {
 
         PageApiResponse<PlanThumbResDto> dto = planService.getAllPlan(page, size);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
 
@@ -60,19 +60,19 @@ public class PlanController {
             @RequestBody List<LocationOrderUpdateReqDto> locationOrderUpdateReqDtos) {
 
         PlanResDto dto = planService.updateScheduleOrder(planId, locationOrderUpdateReqDtos);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "지역날짜, 순서 변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "지역날짜, 순서 변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @PutMapping("/{planId}")
     public ResponseEntity<CommonResDto> updatePlan(@PathVariable Long planId, @Valid @RequestBody PlanUpdateReqDto planUpdateReqDto) {
         PlanResDto dto = planService.updatePlan(planId, planUpdateReqDto);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{planId}")
     public ResponseEntity<CommonResDto> deletePlan(@PathVariable Long planId) {
         PlanResDto dto = planService.deletePlan(planId);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @GetMapping("/search/{keyword}")
@@ -82,6 +82,6 @@ public class PlanController {
             @RequestParam(defaultValue = "10") int size) {
 
         PageApiResponse<PlanThumbResDto> dto = planService.getAllPlanByKeyword(keyword, page, size);
-        return new ResponseEntity<>(new CommonResDto(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 }
