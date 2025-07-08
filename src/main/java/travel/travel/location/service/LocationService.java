@@ -59,7 +59,9 @@ public class LocationService {
         }
         Integer newOrderNumber = lastOrderNumber + 1;
 
-        Location savedLocation = locationRepository.save(locationCreateReqDto.toEntity(plan, image, newOrderNumber));
+        Location savedLocation = locationRepository.save(
+                LocationCreateReqDto.toEntity(locationCreateReqDto, plan, image, newOrderNumber));
+
         return LocationResDto.fromEntity(savedLocation);
     }
 

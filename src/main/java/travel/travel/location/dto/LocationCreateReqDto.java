@@ -31,19 +31,19 @@ public class LocationCreateReqDto {
     private String googleImageUrl;
     private String types;
 
-    public Location toEntity(Plan plan, List<Image> images, Integer newOrderNumber) {
+    public static Location toEntity(LocationCreateReqDto dto, Plan plan, List<Image> images, Integer newOrderNumber) {
         return Location.builder()
-                .locationName(this.locationName)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
-                .address(this.address)
-                .day(this.day)
-                .description(this.description)
-                .placeId(this.placeId)
+                .locationName(dto.locationName)
+                .latitude(dto.latitude)
+                .longitude(dto.longitude)
+                .address(dto.address)
+                .day(dto.day)
+                .description(dto.description)
+                .placeId(dto.placeId)
                 .scheduleOrder(newOrderNumber)
                 .plan(plan)
-                .googleImageUrl(this.googleImageUrl)
-                .types(this.types)
+                .googleImageUrl(dto.googleImageUrl)
+                .types(dto.types)
                 .images(images)
                 .build();
     }
