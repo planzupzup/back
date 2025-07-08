@@ -1,19 +1,22 @@
 package travel.travel.common.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
-@Data
+@Getter
 @NoArgsConstructor
-public class CommonResDto {
-    private int status_code;
-    private String Status_message;
-    private Object result;
+@Builder
+@AllArgsConstructor
+public class CommonResDto<T> {
+    private int statusCode;
+    private String statusMessage;
+    private T result;
 
-    public CommonResDto(HttpStatus status_code, String status_message, Object result) {
-        this.status_code = status_code.value();
-        Status_message = status_message;
-        this.result = result;
+    public static <T> CommonResDto<T> of(HttpStatus status, String message, T result) {
+        return CommonResDto.<T>builder()
+                .statusCode(status.value())
+                .statusMessage(message)
+                .result(result)
+                .build();
     }
 }

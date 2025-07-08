@@ -1,9 +1,6 @@
 package travel.travel.location.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import travel.travel.image.dto.ImageResDto;
 import travel.travel.location.domain.Location;
 
@@ -11,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -32,7 +29,7 @@ public class LocationResDto {
     private String types;
     private List<ImageResDto> images;
 
-    public static LocationResDto fromEntity(Location location) {
+    public static LocationResDto of(Location location) {
         LocalDate startDate = location.getPlan().getStartDate();
         List<ImageResDto> imageResDtos = Optional.ofNullable(location.getImages())
                 .orElse(List.of())

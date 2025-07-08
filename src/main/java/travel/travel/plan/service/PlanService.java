@@ -53,8 +53,10 @@ public class PlanService{
             throw new IllegalArgumentException("시작일은 종료일보다 이전이어야 합니다.");
         }
 
-        Plan savedPlan = planRepository.save(planCreateReqDto.toEntity(member, destination));
-        return PlanResDto.fromEntity(savedPlan);
+        Plan savedPlan = planRepository.save(
+                PlanCreateReqDto.toEntity(planCreateReqDto, member, destination)
+        );
+        return PlanResDto.of(savedPlan);
     }
 
 
@@ -64,10 +66,10 @@ public class PlanService{
 
         List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
                 .filter(location -> location.getDay().equals(day))
-                .map(LocationThumbResDto::fromThumbEntity)
+                .map(LocationThumbResDto::of)
                 .toList();
 
-        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
+        return PlanResDto.of(existingPlan, filteredLocations);
     }
 
 
@@ -76,16 +78,16 @@ public class PlanService{
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
         List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
-                .map(LocationThumbResDto::fromThumbEntity)
+                .map(LocationThumbResDto::of)
                 .toList();
 
-        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
+        return PlanResDto.of(existingPlan, filteredLocations);
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Plan> plans = planRepository.findAll(pageable);
-        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::fromThumbEntity).getContent();
+        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::of).getContent();
 
         return PageApiResponse.<PlanThumbResDto>builder()
                 .content(content)
@@ -106,7 +108,7 @@ public class PlanService{
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        existingPlan.updatePlan(planUpdateReqDto.toEntity(member));
+        existingPlan.updatePlan(planUpdateReqDto.getTitle(), planUpdateReqDto.getContent(), planUpdateReqDto.getStartDate(), planUpdateReqDto.getEndDate());
 
         if (!existingPlan.getMember().getId().equals(member.getId())) {
             throw new SecurityException("수정 권한이 없습니다.");
@@ -114,7 +116,7 @@ public class PlanService{
 
         Plan savedPlan = planRepository.save(existingPlan);
 
-        return PlanResDto.fromEntity(savedPlan);
+        return PlanResDto.of(savedPlan);
 
     }
 
@@ -155,7 +157,7 @@ public class PlanService{
             locationService.autoScheduleOrder(reordered);
         }
 
-        return PlanResDto.fromEntity(existingPlan);
+        return PlanResDto.of(existingPlan);
     }
 
     public PlanResDto deletePlan(Long planId) {
@@ -172,13 +174,13 @@ public class PlanService{
         }
 
         planRepository.delete(existingPlan);
-        return PlanResDto.fromEntity(existingPlan);
+        return PlanResDto.of(existingPlan);
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Plan> plans = planRepository.searchByKeyword(keyword, pageable);
-        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::fromThumbEntity).getContent();
+        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::of).getContent();
 
         return PageApiResponse.<PlanThumbResDto>builder()
                 .content(content)

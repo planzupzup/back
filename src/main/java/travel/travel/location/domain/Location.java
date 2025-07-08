@@ -1,10 +1,7 @@
 package travel.travel.location.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import travel.travel.image.domain.Image;
 import travel.travel.location.dto.LocationUpdateReqDto;
 import travel.travel.plan.domain.Plan;
@@ -14,7 +11,7 @@ import java.util.List;
 
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Getter
@@ -44,19 +41,31 @@ public class Location {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    @OneToMany(mappedBy = "location",fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "location_id")
     private List<Image> images = new ArrayList<>();
 
-    public void updateInfo(LocationUpdateReqDto locationUpdateReqDto, List<Image> image) {
-        this.locationName = locationUpdateReqDto.getLocationName();
-        this.latitude = locationUpdateReqDto.getLatitude();
-        this.longitude = locationUpdateReqDto.getLongitude();
-        this.address = locationUpdateReqDto.getAddress();
-        this.description = locationUpdateReqDto.getDescription();
-        this.googleImageUrl = locationUpdateReqDto.getGoogleImageUrl();
-        this.types = locationUpdateReqDto.getTypes();
-        this.placeId = locationUpdateReqDto.getPlaceId();
-        this.images = image;
+    public void updateInfo(
+            String locationName,
+            double latitude,
+            double longitude,
+            String address,
+            String description,
+            String googleImageUrl,
+            String types,
+            String placeId,
+            List<Image> images
+    ) {
+        this.locationName = locationName;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.address = address;
+        this.description = description;
+        this.googleImageUrl = googleImageUrl;
+        this.types = types;
+        this.placeId = placeId;
+        this.images.clear();
+        this.images.addAll(images);
     }
 
     public void updateScheduleOrder(int scheduleOrder) {

@@ -8,6 +8,7 @@ import travel.travel.common.domain.BaseEntity;
 @Getter
 @Entity
 @NoArgsConstructor
+@Table(name = "member")
 public class Member extends BaseEntity {
 
     @Id

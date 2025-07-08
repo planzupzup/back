@@ -1,18 +1,14 @@
 package travel.travel.location.dto;
 
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class LocationUpdateReqDto {
 
-    @NotEmpty(message = "locationName는 필수입니다.")
+    @NotEmpty(message = "location name 은 필수입니다.")
     private String locationName;
 
     private double latitude;

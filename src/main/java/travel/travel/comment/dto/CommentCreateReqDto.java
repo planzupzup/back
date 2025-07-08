@@ -14,9 +14,9 @@ public class CommentCreateReqDto {
     private Long parentId;
     private Long planId;
 
-    public Comment toEntity(Member member, Comment parent, Plan plan) {
+    public static Comment toEntity(CommentCreateReqDto dto, Member member, Comment parent, Plan plan) {
         return Comment.builder()
-                .content(this.content)
+                .content(dto.content)
                 .parent(parent)
                 .member(member)
                 .plan(plan)

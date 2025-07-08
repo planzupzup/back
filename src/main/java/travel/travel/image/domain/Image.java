@@ -2,9 +2,6 @@ package travel.travel.image.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.DynamicInsert;
-import travel.travel.image.dto.ImageResDto;
-import travel.travel.location.domain.Location;
 
 
 @Entity
@@ -12,24 +9,16 @@ import travel.travel.location.domain.Location;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
-@DynamicInsert
-@Table(name = "Image")
+@Table(name = "image")
 public class Image {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
+    @Column(length = 1000)
     private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id")
-    private Location location;
+    private String s3Key;
 
-    public ImageResDto fromEntity() {
-        return ImageResDto.builder()
-                .imageId(this.imageId)
-                .imageUrl(this.imageUrl)
-                .build();
-    }
 }
