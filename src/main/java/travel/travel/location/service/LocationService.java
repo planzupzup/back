@@ -73,13 +73,14 @@ public class LocationService {
 
         imageRepository.deleteAll(location.getImages());
 
-        List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
-        List<Image> image =  imageResDtos.stream()
-                .map(img -> Image.builder()
-                        .imageId(img.getImageId())
-                        .imageUrl(img.getImageUrl())
-                        .build())
-                .toList();
+        List<Image> images = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
+            images = imageResDtos.stream()
+                    .map(img -> imageRepository.findById(img.getImageId())
+                            .orElseThrow(() -> new EntityNotFoundException("이미지를 찾을 수 없습니다.")))
+                    .toList();
+        }
 
         location.updateInfo(
                 locationUpdateReqDto.getLocationName(),
@@ -90,7 +91,7 @@ public class LocationService {
                 locationUpdateReqDto.getGoogleImageUrl(),
                 locationUpdateReqDto.getTypes(),
                 locationUpdateReqDto.getPlaceId(),
-                image
+                images
         );
         return LocationResDto.of(location);
     }

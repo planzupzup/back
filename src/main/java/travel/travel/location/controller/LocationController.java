@@ -26,7 +26,7 @@ public class LocationController {
     @PostMapping
     public ResponseEntity<CommonResDto<LocationResDto>> createLocation(
             @Valid @RequestPart LocationCreateReqDto locationCreateReqDto,
-            @RequestPart(required = false) List<MultipartFile> files) throws IOException {
+            @RequestPart(required = false) List<MultipartFile> files) {
         LocationResDto dto = locationService.createLocation(locationCreateReqDto, files);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "지역저장이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
@@ -41,7 +41,7 @@ public class LocationController {
     public ResponseEntity<CommonResDto<LocationResDto>> updateLocation(
             @PathVariable Long locationId,
             @Valid @RequestPart LocationUpdateReqDto locationUpdateReqDto,
-            @RequestPart(required = false) List<MultipartFile> files) throws IOException {
+            @RequestPart(required = false) List<MultipartFile> files) {
         LocationResDto dto = locationService.updateLocation(locationId, locationUpdateReqDto, files);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "지역변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }

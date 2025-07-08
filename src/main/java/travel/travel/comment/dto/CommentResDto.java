@@ -25,7 +25,7 @@ public class CommentResDto {
                 .parentId(comment.getParent() != null ? comment.getParent().getCommentId() : null)
                 .content(comment.getContent())
                 .planId(comment.getPlan().getPlanId())
-                .likesCount(comment.getLike().size())
+                .likesCount(comment.getLike() == null ? 0 : comment.getLike().size())
                 .build();
     }
 }
