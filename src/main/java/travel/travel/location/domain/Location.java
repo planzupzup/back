@@ -41,7 +41,8 @@ public class Location {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    @OneToMany(mappedBy = "location",fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "location_id")
     private List<Image> images = new ArrayList<>();
 
     public void updateInfo(LocationUpdateReqDto locationUpdateReqDto, List<Image> image) {

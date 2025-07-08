@@ -2,7 +2,6 @@ package travel.travel.image.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import travel.travel.location.domain.Location;
 
 
 @Entity
@@ -17,10 +16,9 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
+    @Column(length = 1000)
     private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id")
-    private Location location;
+    private String s3Key;
 
 }

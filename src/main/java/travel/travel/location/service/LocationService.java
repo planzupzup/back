@@ -19,6 +19,7 @@ import travel.travel.plan.domain.Plan;
 import travel.travel.plan.repository.PlanRepository;
 
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,26 +41,22 @@ public class LocationService {
             throw new IllegalArgumentException("요청하신 day 값이 계획 범위를 벗어났습니다.");
         }
 
-        List<Image> image = null;
+        List<Image> images = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
             List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
-            image =  imageResDtos.stream()
+            images = imageResDtos.stream()
                     .map(img -> Image.builder()
-                            .imageId(img.getImageId())
                             .imageUrl(img.getImageUrl())
                             .build())
                     .toList();
         }
 
-        Location location = locationRepository.findTopByPlanAndDayOrderByScheduleOrderDesc(plan, locationCreateReqDto.getDay());
-        Integer lastOrderNumber = 0;
-        if (location != null) {
-            lastOrderNumber = location.getScheduleOrder();
-        }
-        Integer newOrderNumber = lastOrderNumber + 1;
+        Location findLocation = locationRepository.findTopByPlanAndDayOrderByScheduleOrderDesc(plan, locationCreateReqDto.getDay());
+        int lastOrderNumber = (findLocation != null) ? findLocation.getScheduleOrder() : 0;
+        int newOrderNumber = lastOrderNumber + 1;
 
         Location savedLocation = locationRepository.save(
-                LocationCreateReqDto.toEntity(locationCreateReqDto, plan, image, newOrderNumber));
+                LocationCreateReqDto.toEntity(locationCreateReqDto, plan, images, newOrderNumber));
 
         return LocationResDto.of(savedLocation);
     }
@@ -93,7 +90,7 @@ public class LocationService {
         Location existingLocation = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 위치입니다."));
         Integer day = existingLocation.getDay();
-        imageRepository.deleteAll(existingLocation.getImages());
+        imageService.deleteImages(existingLocation.getImages());
         locationRepository.delete(existingLocation);
 
         Plan plan =  planRepository.findById(existingLocation.getPlan().getPlanId())
