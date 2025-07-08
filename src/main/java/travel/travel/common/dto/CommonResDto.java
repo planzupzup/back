@@ -7,16 +7,16 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class CommonResDto {
-    private int status_code;
-    private String Status_message;
-    private Object result;
+public class CommonResDto<T> {
+    private int statusCode;
+    private String statusMessage;
+    private T result;
 
-    public static CommonResDto of(HttpStatus status, String message, Object result) {
-        return CommonResDto.builder()
-                  .status_code(status.value())
-                  .Status_message(message)
-                  .result(result)
-                  .build();
+    public static <T> CommonResDto<T> of(HttpStatus status, String message, T result) {
+        return CommonResDto.<T>builder()
+                .statusCode(status.value())
+                .statusMessage(message)
+                .result(result)
+                .build();
     }
 }

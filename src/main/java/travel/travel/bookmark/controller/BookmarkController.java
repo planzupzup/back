@@ -17,19 +17,19 @@ public class BookmarkController {
 
 
     @PostMapping("/{planId}/bookmark")
-    public ResponseEntity<CommonResDto> addBookmark (@PathVariable Long planId) {
+    public ResponseEntity<CommonResDto<Long>> addBookmark (@PathVariable Long planId) {
         bookmarkService.addBookmark(planId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크추가가 성공적으로 되었습니다.", null), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크추가가 성공적으로 되었습니다.",planId ), HttpStatus.OK);
     }
 
     @DeleteMapping("/{planId}/bookmark")
-    public ResponseEntity<CommonResDto> removeBookmark(@PathVariable Long planId) {
+    public ResponseEntity<CommonResDto<Long>> removeBookmark(@PathVariable Long planId) {
         bookmarkService.removeBookmark(planId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크취소가 성공적으로 되었습니다.", null), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크취소가 성공적으로 되었습니다.", planId), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}/bookmark")
-    public ResponseEntity<CommonResDto> getBookmarkCount(@PathVariable Long planId) {
+    public ResponseEntity<CommonResDto<Long>> getBookmarkCount(@PathVariable Long planId) {
         Long bookmarkCount = bookmarkService.getBookmarkCount(planId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크개수조회가 성공적으로 되었습니다.", bookmarkCount), HttpStatus.OK);
     }
