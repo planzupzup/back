@@ -51,7 +51,7 @@ public class CommentService {
             }
         }
 
-        Comment savedComment = commentRepository.save(commentCreateReqDto.toEntity(member, parent, plan));
+        Comment savedComment = commentRepository.save(CommentCreateReqDto.toEntity(commentCreateReqDto, member, parent, plan));
         return CommentResDto.fromEntity(savedComment);
     }
 
