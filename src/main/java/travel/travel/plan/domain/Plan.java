@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Getter
-@Table(name= "plan")
+@Table(name = "plan")
 public class Plan extends BaseEntity {
 
     @Id

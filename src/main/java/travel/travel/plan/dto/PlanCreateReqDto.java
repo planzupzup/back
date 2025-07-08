@@ -8,7 +8,7 @@ import travel.travel.plan.domain.Plan;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

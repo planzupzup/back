@@ -56,7 +56,7 @@ public class PlanService{
         Plan savedPlan = planRepository.save(
                 PlanCreateReqDto.toEntity(planCreateReqDto, member, destination)
         );
-        return PlanResDto.fromEntity(savedPlan);
+        return PlanResDto.of(savedPlan);
     }
 
 
@@ -69,7 +69,7 @@ public class PlanService{
                 .map(LocationThumbResDto::fromThumbEntity)
                 .toList();
 
-        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
+        return PlanResDto.of(existingPlan, filteredLocations);
     }
 
 
@@ -81,13 +81,13 @@ public class PlanService{
                 .map(LocationThumbResDto::fromThumbEntity)
                 .toList();
 
-        return PlanResDto.fromEntityByDay(existingPlan, filteredLocations);
+        return PlanResDto.of(existingPlan, filteredLocations);
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Plan> plans = planRepository.findAll(pageable);
-        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::fromThumbEntity).getContent();
+        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::of).getContent();
 
         return PageApiResponse.<PlanThumbResDto>builder()
                 .content(content)
@@ -116,7 +116,7 @@ public class PlanService{
 
         Plan savedPlan = planRepository.save(existingPlan);
 
-        return PlanResDto.fromEntity(savedPlan);
+        return PlanResDto.of(savedPlan);
 
     }
 
@@ -157,7 +157,7 @@ public class PlanService{
             locationService.autoScheduleOrder(reordered);
         }
 
-        return PlanResDto.fromEntity(existingPlan);
+        return PlanResDto.of(existingPlan);
     }
 
     public PlanResDto deletePlan(Long planId) {
@@ -174,13 +174,13 @@ public class PlanService{
         }
 
         planRepository.delete(existingPlan);
-        return PlanResDto.fromEntity(existingPlan);
+        return PlanResDto.of(existingPlan);
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Plan> plans = planRepository.searchByKeyword(keyword, pageable);
-        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::fromThumbEntity).getContent();
+        List<PlanThumbResDto> content = plans.map(PlanThumbResDto::of).getContent();
 
         return PageApiResponse.<PlanThumbResDto>builder()
                 .content(content)

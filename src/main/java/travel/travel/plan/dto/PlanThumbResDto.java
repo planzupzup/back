@@ -2,18 +2,20 @@ package travel.travel.plan.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import travel.travel.plan.domain.Plan;
 
-@Builder
+@Getter
+@NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Builder
 public class PlanThumbResDto {
     private Long planId;
     private String title;
     private String destinationName;
 
-    public static PlanThumbResDto fromThumbEntity(Plan plan) {
+    public static PlanThumbResDto of(Plan plan) {
         return PlanThumbResDto.builder()
                 .planId(plan.getPlanId())
                 .title(plan.getTitle())
