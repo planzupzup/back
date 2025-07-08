@@ -19,7 +19,6 @@ public class PlanResDto {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private Long destinationId;
     private String destinationName;
 
     private List<LocationThumbResDto> locations;
@@ -31,7 +30,6 @@ public class PlanResDto {
                 .content(plan.getContent())
                 .startDate(plan.getStartDate())
                 .endDate(plan.getEndDate())
-                .destinationId(plan.getDestination().getDestinationId())
                 .destinationName(plan.getDestination().getDestinationName())
                 .locations(locations)
                 .build();
