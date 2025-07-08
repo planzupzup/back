@@ -54,7 +54,7 @@ public class ImageService {
                         Image image = Image.builder().imageUrl(url).build();
                         imageRepository.save(image);
 
-                        return image.fromEntity();
+                        return ImageResDto.of(image);
 
                     } catch (IOException e) {
                         throw new RuntimeException("S3 업로드 실패");

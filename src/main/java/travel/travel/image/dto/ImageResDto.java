@@ -1,17 +1,21 @@
 package travel.travel.image.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import travel.travel.image.domain.Image;
 
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ImageResDto {
     private Long imageId;
     private String imageUrl;
+
+    public static ImageResDto of(Image image) {
+        return ImageResDto.builder()
+                .imageId(image.getImageId())
+                .imageUrl(image.getImageUrl())
+                .build();
+    }
 }
