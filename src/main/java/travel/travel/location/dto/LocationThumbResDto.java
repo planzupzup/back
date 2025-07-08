@@ -1,14 +1,11 @@
 package travel.travel.location.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import travel.travel.location.domain.Location;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,7 +25,7 @@ public class LocationThumbResDto {
     private String googleImageUrl;
     private String types;
 
-    public static LocationThumbResDto fromThumbEntity(Location location) {
+    public static LocationThumbResDto of(Location location) {
         LocalDate startDate = location.getPlan().getStartDate();
 
         return LocationThumbResDto.builder()

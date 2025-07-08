@@ -1,8 +1,12 @@
 package travel.travel.location.dto;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class LocationOrderUpdateReqDto {
     private Long locationId;
     private Integer day;

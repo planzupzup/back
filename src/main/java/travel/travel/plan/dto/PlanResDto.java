@@ -40,7 +40,7 @@ public class PlanResDto {
     public static PlanResDto of(Plan plan) {
         List<LocationThumbResDto> locations = (plan.getLocations() != null && !plan.getLocations().isEmpty())
                 ? plan.getLocations().stream()
-                .map(LocationThumbResDto::fromThumbEntity)
+                .map(LocationThumbResDto::of)
                 .toList()
                 : new ArrayList<>();
         return of(plan, locations);

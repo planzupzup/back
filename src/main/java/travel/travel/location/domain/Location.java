@@ -1,10 +1,7 @@
 package travel.travel.location.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import travel.travel.image.domain.Image;
 import travel.travel.location.dto.LocationUpdateReqDto;
 import travel.travel.plan.domain.Plan;
@@ -14,7 +11,7 @@ import java.util.List;
 
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Getter

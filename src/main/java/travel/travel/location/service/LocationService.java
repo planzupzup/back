@@ -18,7 +18,6 @@ import travel.travel.location.repository.LocationRepository;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.repository.PlanRepository;
 
-import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class LocationService {
     private final ImageService imageService;
     private final ImageRepository imageRepository;
 
-    public LocationResDto createLocation(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) throws IOException {
+    public LocationResDto createLocation(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) {
         Plan plan = planRepository.findById(locationCreateReqDto.getPlanId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -62,17 +61,17 @@ public class LocationService {
         Location savedLocation = locationRepository.save(
                 LocationCreateReqDto.toEntity(locationCreateReqDto, plan, image, newOrderNumber));
 
-        return LocationResDto.fromEntity(savedLocation);
+        return LocationResDto.of(savedLocation);
     }
 
     public LocationResDto getLocation(Long locationId) {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다."));
 
-        return LocationResDto.fromEntity(location);
+        return LocationResDto.of(location);
     }
 
-    public LocationResDto updateLocation(Long locationId, LocationUpdateReqDto locationUpdateReqDto, List<MultipartFile> files) throws IOException {
+    public LocationResDto updateLocation(Long locationId, LocationUpdateReqDto locationUpdateReqDto, List<MultipartFile> files) {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 지역이 존재하지 않습니다."));
 
@@ -87,7 +86,7 @@ public class LocationService {
                 .toList();
 
         location.updateInfo(locationUpdateReqDto, image);
-        return LocationResDto.fromEntity(location);
+        return LocationResDto.of(location);
     }
 
     public LocationResDto deleteLocation(Long locationId) {
@@ -102,7 +101,7 @@ public class LocationService {
 
         autoScheduleOrder(locationRepository.findByPlanAndDayOrderByScheduleOrderAsc(plan, day));
 
-        return LocationResDto.fromEntity(existingLocation);
+        return LocationResDto.of(existingLocation);
     }
 
     public void checkForDuplicateScheduleOrder(List<Location> locations) {

@@ -66,7 +66,7 @@ public class PlanService{
 
         List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
                 .filter(location -> location.getDay().equals(day))
-                .map(LocationThumbResDto::fromThumbEntity)
+                .map(LocationThumbResDto::of)
                 .toList();
 
         return PlanResDto.of(existingPlan, filteredLocations);
@@ -78,7 +78,7 @@ public class PlanService{
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
         List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
-                .map(LocationThumbResDto::fromThumbEntity)
+                .map(LocationThumbResDto::of)
                 .toList();
 
         return PlanResDto.of(existingPlan, filteredLocations);
