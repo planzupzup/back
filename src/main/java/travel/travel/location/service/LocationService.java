@@ -45,9 +45,8 @@ public class LocationService {
         if (files != null && !files.isEmpty()) {
             List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
             images = imageResDtos.stream()
-                    .map(img -> Image.builder()
-                            .imageUrl(img.getImageUrl())
-                            .build())
+                    .map(img -> imageRepository.findById(img.getImageId())
+                            .orElseThrow(() -> new EntityNotFoundException("이미지를 찾을 수 없습니다.")))
                     .toList();
         }
 
