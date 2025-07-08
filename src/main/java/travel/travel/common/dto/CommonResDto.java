@@ -1,12 +1,9 @@
 package travel.travel.common.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
-@Data
+@Getter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
