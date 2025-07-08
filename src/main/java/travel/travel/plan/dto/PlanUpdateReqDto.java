@@ -23,12 +23,12 @@ public class PlanUpdateReqDto {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public Plan toEntity(Member member) {
+    public static Plan toEntity(PlanUpdateReqDto dto, Member member) {
         return Plan.builder()
-                .title(this.title)
-                .content(this.content)
-                .startDate(this.startDate)
-                .endDate(this.endDate)
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
                 .member(member)
                 .build();
     }

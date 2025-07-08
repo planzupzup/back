@@ -23,12 +23,12 @@ public class PlanCreateReqDto {
 
     private String destinationName;
 
-    public Plan toEntity(Member member, Destination destination) {
+    public static Plan toEntity(PlanCreateReqDto dto, Member member, Destination destination) {
         return Plan.builder()
-                .title(this.title)
-                .content(this.content)
-                .startDate(this.startDate)
-                .endDate(this.endDate)
+                .title(dto.title)
+                .content(dto.content)
+                .startDate(dto.startDate)
+                .endDate(dto.endDate)
                 .destination(destination)
                 .member(member)
                 .build();

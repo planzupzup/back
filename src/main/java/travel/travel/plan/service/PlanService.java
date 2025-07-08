@@ -53,7 +53,9 @@ public class PlanService{
             throw new IllegalArgumentException("시작일은 종료일보다 이전이어야 합니다.");
         }
 
-        Plan savedPlan = planRepository.save(planCreateReqDto.toEntity(member, destination));
+        Plan savedPlan = planRepository.save(
+                PlanCreateReqDto.toEntity(planCreateReqDto, member, destination)
+        );
         return PlanResDto.fromEntity(savedPlan);
     }
 
@@ -106,7 +108,7 @@ public class PlanService{
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        existingPlan.updatePlan(planUpdateReqDto.toEntity(member));
+        existingPlan.updatePlan(PlanUpdateReqDto.toEntity(planUpdateReqDto, member));
 
         if (!existingPlan.getMember().getId().equals(member.getId())) {
             throw new SecurityException("수정 권한이 없습니다.");
