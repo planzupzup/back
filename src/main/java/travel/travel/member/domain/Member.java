@@ -23,6 +23,9 @@ public class Member extends BaseEntity {
 
     private String refreshToken;
 
+    @Column(length = 1000)
+    private String imageUrl;
+
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -39,5 +42,9 @@ public class Member extends BaseEntity {
 
     public void updateNickName(String nickName) {
         this.nickName = nickName;
+    }
+
+    public void updateImage(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

@@ -8,8 +8,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.common.dto.PageApiResponse;
+import travel.travel.image.domain.Image;
+import travel.travel.image.service.ImageService;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Plan;
@@ -26,11 +29,26 @@ public class MyPageService {
     private final MemberRepository memberRepository;
     private final PlanRepository planRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final ImageService imageService;
 
-    public String updateNickName(NickNameReqDto nickNameReqDto) {
+    public MemberResDto updateMyInfo(NickNameReqDto nickNameReqDto, MultipartFile file) {
         Member member = getMember();
         member.updateNickName(nickNameReqDto.getNickName());
-        return nickNameReqDto.getNickName();
+
+        if (member.getImageUrl() != null) {
+            imageService.deleteImages(List.of(Image.builder().imageUrl(member.getImageUrl()).build()));
+        }
+        if (file != null && !file.isEmpty()) {
+            String newImageUrl = imageService.uploadFiles(List.of(file)).getFirst().getImageUrl();
+            member.updateImage(newImageUrl);
+        }
+
+        return MemberResDto.of(member);
+    }
+
+    public MemberResDto getMyInfo() {
+        Member member = getMember();
+        return MemberResDto.of(member);
     }
 
     public PageApiResponse<PlanThumbResDto> getBookmarkedPlans(int page, int size) {
