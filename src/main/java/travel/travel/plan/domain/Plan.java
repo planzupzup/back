@@ -23,6 +23,9 @@ public class Plan extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long planId;
 
+    @Column(nullable = false)
+    private boolean isPublic;
+
     @Column(length = 100)
     private String title;
 
@@ -46,7 +49,8 @@ public class Plan extends BaseEntity {
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
 
-    public void updatePlan(String title, String content, LocalDate startDate, LocalDate endDate) {
+    public void updatePlan(boolean isPublic, String title, String content, LocalDate startDate, LocalDate endDate) {
+        this.isPublic = isPublic;
         this.title = title;
         this.content = content;
         this.startDate = startDate;
