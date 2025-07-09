@@ -42,10 +42,7 @@ public class PlanService{
     private final BookmarkRepository bookmarkRepository;
 
     public PlanResDto createPlan(PlanCreateReqDto planCreateReqDto) {
-//        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Member member = getMember();
 
         Destination destination = destinationRepository.findByDestinationName(planCreateReqDto.getDestinationName())
                 .orElseThrow(()->new EntityNotFoundException("존재하지 않는 장소입니다."));
@@ -63,10 +60,7 @@ public class PlanService{
     }
 
     public PlanResDto getPlanByDay(Long planId, Integer day) {
-      //  String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Member member = getMember();
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -82,10 +76,7 @@ public class PlanService{
 
 
     public PlanResDto getPlan(Long planId) {
-        //  String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Member member = getMember();
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -99,39 +90,17 @@ public class PlanService{
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
-        //  String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Member member = getMember();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Plan> plans = planRepository.findAllByIsPublicTrue(pageable);
 
 
-
-        List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
-        Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
-
-        List<PlanThumbResDto> content = plans.getContent().stream()
-                .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())))
-                .toList();
-
-        return PageApiResponse.<PlanThumbResDto>builder()
-                .content(content)
-                .page(plans.getNumber())
-                .size(plans.getSize())
-                .totalPages(plans.getTotalPages())
-                .totalElements(plans.getTotalElements())
-                .first(plans.isFirst())
-                .last(plans.isLast())
-                .build();
+        return getPlanThumbResDtoPageApiResponse(member, plans);
     }
 
     public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto) {
-        //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Member member = getMember();
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -148,11 +117,7 @@ public class PlanService{
     }
 
     public PlanResDto updateScheduleOrder(Long planId, List<LocationOrderUpdateReqDto> locationOrderUpdateReqDtos) {
-        //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-
+        Member member = getMember();
 
         Plan existingPlan =  planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -189,10 +154,7 @@ public class PlanService{
     }
 
     public PlanResDto deletePlan(Long planId) {
-        //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Member member = getMember();
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -206,20 +168,37 @@ public class PlanService{
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
-        //  String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Member member = getMember();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Plan> plans = planRepository.searchByKeyword(keyword, pageable);
 
+        return getPlanThumbResDtoPageApiResponse(member, plans);
+    }
+
+    private boolean isBookmarked(Member member, Plan savedPlan) {
+        return bookmarkRepository.existsByMemberAndPlan(member, savedPlan);
+    }
+
+    private Member getMember() {
+        //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String memberId = "1";
+        return memberRepository.findById(Long.valueOf(memberId))
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+    }
+
+    private List<PlanThumbResDto> getPlanThumbResDtos(Member member, Page<Plan> plans) {
         List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
         Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
 
-        List<PlanThumbResDto> content = plans.getContent().stream()
+        return plans.getContent().stream()
                 .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())))
                 .toList();
+
+    }
+
+    private PageApiResponse<PlanThumbResDto> getPlanThumbResDtoPageApiResponse(Member member, Page<Plan> plans) {
+        List<PlanThumbResDto> content = getPlanThumbResDtos(member, plans);
 
         return PageApiResponse.<PlanThumbResDto>builder()
                 .content(content)
@@ -231,9 +210,4 @@ public class PlanService{
                 .last(plans.isLast())
                 .build();
     }
-
-    private boolean isBookmarked(Member member, Plan savedPlan) {
-        return bookmarkRepository.existsByMemberAndPlan(member, savedPlan);
-    }
-
 }
