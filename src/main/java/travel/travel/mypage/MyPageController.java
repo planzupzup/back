@@ -32,4 +32,14 @@ public class MyPageController {
         PageApiResponse<PlanThumbResDto> dto = myPageService.getBookmarkedPlans(page, size);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
+
+    @GetMapping("/plans")
+    public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getMyPlans(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        PageApiResponse<PlanThumbResDto> dto = myPageService.getMyPlans(page, size);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
 }

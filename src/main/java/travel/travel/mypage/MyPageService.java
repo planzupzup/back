@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.common.dto.PageApiResponse;
@@ -13,6 +14,7 @@ import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.dto.PlanThumbResDto;
+import travel.travel.plan.repository.PlanRepository;
 
 import java.util.List;
 
@@ -22,6 +24,7 @@ import java.util.List;
 public class MyPageService {
 
     private final MemberRepository memberRepository;
+    private final PlanRepository planRepository;
     private final BookmarkRepository bookmarkRepository;
 
     public String updateNickName(NickNameReqDto nickNameReqDto) {
@@ -49,6 +52,27 @@ public class MyPageService {
                 .last(plans.isLast())
                 .build();
     }
+
+    public PageApiResponse<PlanThumbResDto> getMyPlans(int page, int size) {
+        Member member = getMember();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Page<Plan> plans = planRepository.findByMember(member, pageable);
+
+        List<PlanThumbResDto> content = plans.getContent().stream()
+                .map(plan -> PlanThumbResDto.of(plan, false))
+                .toList();
+
+        return PageApiResponse.<PlanThumbResDto>builder()
+                .content(content)
+                .page(plans.getNumber())
+                .size(plans.getSize())
+                .totalPages(plans.getTotalPages())
+                .totalElements(plans.getTotalElements())
+                .first(plans.isFirst())
+                .last(plans.isLast())
+                .build();
+    }
+
 
     private Member getMember() {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
