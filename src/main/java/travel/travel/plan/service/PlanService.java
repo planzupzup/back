@@ -86,7 +86,7 @@ public class PlanService{
 
     public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<Plan> plans = planRepository.findAll(pageable);
+        Page<Plan> plans = planRepository.findAllByIsPublicTrue(pageable);
         List<PlanThumbResDto> content = plans.map(PlanThumbResDto::of).getContent();
 
         return PageApiResponse.<PlanThumbResDto>builder()

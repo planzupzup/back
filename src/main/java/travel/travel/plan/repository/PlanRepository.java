@@ -18,4 +18,5 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     """)
     Page<Plan> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    Page<Plan> findAllByIsPublicTrue(Pageable pageable);
 }
