@@ -1,5 +1,6 @@
 package travel.travel.plan.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import travel.travel.location.dto.LocationThumbResDto;
 import travel.travel.plan.domain.Plan;
@@ -8,12 +9,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Builder
 public class PlanResDto {
     private Long planId;
+
+    private boolean isPublic;
+
     private String nickName;
     private String title;
     private String content;
@@ -24,9 +27,16 @@ public class PlanResDto {
 
     private List<LocationThumbResDto> locations;
 
+    @JsonProperty("isPublic")
+    public boolean getIsPublic() {
+        return isPublic;
+    }
+
+
     public static PlanResDto of(Plan plan, List<LocationThumbResDto> locations) {
         return PlanResDto.builder()
                 .planId(plan.getPlanId())
+                .isPublic(plan.isPublic())
                 .nickName(plan.getMember().getNickName())
                 .title(plan.getTitle())
                 .content(plan.getContent())

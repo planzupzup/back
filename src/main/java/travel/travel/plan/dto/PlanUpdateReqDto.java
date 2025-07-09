@@ -1,9 +1,9 @@
 package travel.travel.plan.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import travel.travel.member.domain.Member;
-import travel.travel.plan.domain.Plan;
 
 import java.time.LocalDate;
 
@@ -12,6 +12,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class PlanUpdateReqDto {
+
+    @NotNull(message = "공개/비공개 설정은 필수입니다.")
+    @JsonProperty("isPublic")
+    private boolean isPublic;
 
     @NotEmpty(message = "title은 필수입니다.")
     private String title;
