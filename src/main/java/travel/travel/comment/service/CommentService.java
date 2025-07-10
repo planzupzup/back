@@ -15,12 +15,15 @@ import travel.travel.comment.dto.CommentResDto;
 import travel.travel.comment.dto.CommentUpdateReqDto;
 import travel.travel.comment.repository.CommentRepository;
 import travel.travel.common.dto.PageApiResponse;
+import travel.travel.like.repository.LikeRepository;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.repository.PlanRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Slf4j
@@ -32,6 +35,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final PlanRepository planRepository;
+    private final LikeRepository likeRepository;
 
     public CommentResDto createComment(CommentCreateReqDto commentCreateReqDto) {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -52,7 +56,8 @@ public class CommentService {
         }
 
         Comment savedComment = commentRepository.save(CommentCreateReqDto.toEntity(commentCreateReqDto, member, parent, plan));
-        return CommentResDto.of(savedComment);
+        boolean isLiked = likeRepository.existsByMemberAndComment(member, savedComment);
+        return CommentResDto.of(savedComment,isLiked);
     }
 
     public CommentResDto updateComment(Long commentId, CommentUpdateReqDto commentUpdateReqDto) {
@@ -69,7 +74,8 @@ public class CommentService {
         }
 
         findComment.updateComment(commentUpdateReqDto.getContent());
-        return CommentResDto.of(findComment);
+        boolean isLiked = likeRepository.existsByMemberAndComment(member, findComment);
+        return CommentResDto.of(findComment, isLiked);
     }
 
     public CommentResDto deleteComment(Long commentId) {
@@ -90,15 +96,28 @@ public class CommentService {
         }
 
         commentRepository.delete(findComment);
-        return CommentResDto.of(findComment);
+        boolean isLiked = likeRepository.existsByMemberAndComment(member, findComment);
+        return CommentResDto.of(findComment, isLiked);
     }
 
     public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size) {
+        String memberId = "1";
+        Member member = memberRepository.findById(Long.valueOf(memberId))
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<Comment> comments = commentRepository.findByPlanAndParentIsNull(plan, pageable);
-        List<CommentResDto> content = comments.map(CommentResDto::of).getContent();
+
+
+        List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
+        Set<Long> likedSet = new HashSet<>(likedIds);
+
+        List<CommentResDto> content = comments.stream()
+                .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())))
+                .toList();
+
         return PageApiResponse .<CommentResDto>builder()
                 .content(content)
                 .page(comments.getNumber())
@@ -111,6 +130,10 @@ public class CommentService {
     }
 
     public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size) {
+        String memberId = "1";
+        Member member = memberRepository.findById(Long.valueOf(memberId))
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+
         planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
         Comment parent = commentRepository.findById(commentId)
@@ -119,7 +142,14 @@ public class CommentService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
 
         Page<Comment> comments = commentRepository.findByParent(parent, pageable);
-        List<CommentResDto> content = comments.map(CommentResDto::of).getContent();
+
+        List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
+        Set<Long> likedSet = new HashSet<>(likedIds);
+
+        List<CommentResDto> content = comments.stream()
+                .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())))
+                .toList();
+
 
         return PageApiResponse .<CommentResDto>builder()
                 .content(content)

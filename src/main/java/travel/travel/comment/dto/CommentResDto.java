@@ -1,6 +1,7 @@
 package travel.travel.comment.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +18,14 @@ public class CommentResDto {
     private String nickName;
     private Long planId;
     private Integer likesCount;
+    private boolean isLiked;
 
-    public static CommentResDto of(Comment comment) {
+    @JsonProperty("isLiked")
+    public boolean getIsLiked() {
+        return isLiked;
+    }
+
+    public static CommentResDto of(Comment comment, boolean isLiked) {
         return CommentResDto.builder()
                 .commentId(comment.getCommentId())
                 .nickName(comment.getMember().getNickName())
@@ -26,6 +33,7 @@ public class CommentResDto {
                 .content(comment.getContent())
                 .planId(comment.getPlan().getPlanId())
                 .likesCount(comment.getLike() == null ? 0 : comment.getLike().size())
+                .isLiked(isLiked)
                 .build();
     }
 }
