@@ -13,6 +13,8 @@ import travel.travel.plan.domain.Plan;
 @Builder
 public class PlanThumbResDto {
     private Long planId;
+    private String nickName;
+    private String profileImage;
     private String title;
     private String destinationName;
     private boolean isBookMarked;
@@ -25,6 +27,8 @@ public class PlanThumbResDto {
     public static PlanThumbResDto of(Plan plan, boolean bookMarked) {
         return PlanThumbResDto.builder()
                 .planId(plan.getPlanId())
+                .nickName(plan.getMember().getNickName())
+                .profileImage(plan.getMember().getImageUrl())
                 .title(plan.getTitle())
                 .destinationName(plan.getDestination().getDestinationName())
                 .isBookMarked(bookMarked)

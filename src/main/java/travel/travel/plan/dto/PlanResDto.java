@@ -18,6 +18,7 @@ public class PlanResDto {
     private boolean isPublic;
 
     private String nickName;
+    private String profileImage;
     private boolean isBookMarked;
     private String title;
     private String content;
@@ -43,6 +44,7 @@ public class PlanResDto {
                 .planId(plan.getPlanId())
                 .isPublic(plan.isPublic())
                 .nickName(plan.getMember().getNickName())
+                .profileImage(plan.getMember().getImageUrl())
                 .isBookMarked(bookMarked)
                 .title(plan.getTitle())
                 .content(plan.getContent())

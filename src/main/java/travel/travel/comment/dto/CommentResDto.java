@@ -16,6 +16,8 @@ public class CommentResDto {
     private String content;
     private Long parentId;
     private String nickName;
+    private String profileImage;
+    private Integer childrenCount;
     private Long planId;
     private Integer likesCount;
     private boolean isLiked;
@@ -29,6 +31,8 @@ public class CommentResDto {
         return CommentResDto.builder()
                 .commentId(comment.getCommentId())
                 .nickName(comment.getMember().getNickName())
+                .profileImage(comment.getMember().getImageUrl())
+                .childrenCount(comment.getParent() == null ? comment.getChildren().size() : null)
                 .parentId(comment.getParent() != null ? comment.getParent().getCommentId() : null)
                 .content(comment.getContent())
                 .planId(comment.getPlan().getPlanId())
