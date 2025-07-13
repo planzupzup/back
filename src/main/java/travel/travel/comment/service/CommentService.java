@@ -87,16 +87,18 @@ public class CommentService {
         Comment findComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
 
+        boolean isLiked = likeRepository.existsByMemberAndComment(member, findComment);
+
         if (!member.equals(findComment.getMember())) {
             throw new IllegalStateException("본인 댓글만 수정할 수 있습니다.");
         }
 
         if (findComment.getParent() != null) {
+            findComment.getParent().getChildren().size();
             findComment.getParent().getChildren().remove(findComment);
         }
 
         commentRepository.delete(findComment);
-        boolean isLiked = likeRepository.existsByMemberAndComment(member, findComment);
         return CommentResDto.of(findComment, isLiked);
     }
 

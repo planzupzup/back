@@ -40,6 +40,7 @@ public class Comment extends BaseEntity {
     private Plan plan;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Comment> children = new ArrayList<>();
 
     @OneToMany(mappedBy = "comment")
