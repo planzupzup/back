@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import travel.travel.common.dto.CommonResDto;
 import travel.travel.common.dto.PageApiResponse;
-import travel.travel.member.domain.Member;
 import travel.travel.plan.dto.PlanThumbResDto;
 
 @RequiredArgsConstructor
@@ -50,5 +49,11 @@ public class MyPageController {
 
         PageApiResponse<PlanThumbResDto> dto = myPageService.getMyPlans(page, size);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "내가 쓴 글 목록 조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<CommonResDto<MemberResDto>> deleteMyInfo() {
+        MemberResDto dto = myPageService.deleteMyInfo();
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "탈퇴합니다.", dto), HttpStatus.OK);
     }
 }

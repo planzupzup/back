@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import travel.travel.bookmark.repository.BookmarkRepository;
+import travel.travel.comment.repository.CommentRepository;
 import travel.travel.common.dto.PageApiResponse;
 import travel.travel.image.domain.Image;
 import travel.travel.image.service.ImageService;
@@ -30,6 +31,7 @@ public class MyPageService {
     private final PlanRepository planRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ImageService imageService;
+    private final CommentRepository commentRepository;
 
     public MemberResDto updateMyInfo(NickNameReqDto nickNameReqDto, MultipartFile file) {
         Member member = getMember();
@@ -91,6 +93,14 @@ public class MyPageService {
                 .build();
     }
 
+
+    public MemberResDto deleteMyInfo() {
+        Member member = getMember();
+        bookmarkRepository.deleteByMember(member);
+        commentRepository.deleteByMember(member);
+        member.withdraw();
+        return MemberResDto.of(member);
+    }
 
     private Member getMember() {
         //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

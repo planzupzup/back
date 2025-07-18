@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import travel.travel.common.domain.BaseEntity;
 
+import java.util.UUID;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -15,7 +17,7 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String kakaoId;
 
     @Column(unique = true)
@@ -30,6 +32,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
+    private boolean deleted;
 
     public Member(String kakaoId) {
         this.kakaoId = kakaoId;
@@ -46,5 +49,17 @@ public class Member extends BaseEntity {
 
     public void updateImage(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void withdraw() {
+        this.deleted = true;
+        this.nickName = "탈퇴회원_" + generateUuid();
+        this.kakaoId = generateUuid();
+        this.imageUrl = null;
+        this.refreshToken = null;
+    }
+
+    private String generateUuid() {
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 6);
     }
 }
