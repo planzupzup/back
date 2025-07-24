@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import travel.travel.comment.domain.Comment;
+import travel.travel.member.domain.Member;
 import travel.travel.plan.domain.Plan;
 
 
@@ -13,4 +14,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Page<Comment> findByParent(Comment parent, Pageable pageable);
 
+    void deleteByMember(Member member);
 }

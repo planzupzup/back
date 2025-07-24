@@ -27,4 +27,5 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     """)
     Page<Plan> findBookmarkedPlansByMember(@Param("member") Member member, Pageable pageable);
 
+    void deleteByMember(Member member);
 }
