@@ -13,7 +13,6 @@ import travel.travel.location.dto.LocationResDto;
 import travel.travel.location.dto.LocationUpdateReqDto;
 import travel.travel.location.service.LocationService;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,11 +22,19 @@ import java.util.List;
 public class LocationController {
     private final LocationService locationService;
 
-    @PostMapping
-    public ResponseEntity<CommonResDto<LocationResDto>> createLocation(
-            @Valid @RequestPart LocationCreateReqDto locationCreateReqDto,
-            @RequestPart(required = false) List<MultipartFile> files) {
-        LocationResDto dto = locationService.createLocation(locationCreateReqDto, files);
+//    @PostMapping
+//    public ResponseEntity<CommonResDto<LocationResDto>> createLocation(
+//            @Valid @RequestPart LocationCreateReqDto locationCreateReqDto,
+//            @RequestPart(required = false) List<MultipartFile> files) {
+//        LocationResDto dto = locationService.createLocation(locationCreateReqDto, files);
+//        return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "지역저장이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
+//    }
+
+    @PostMapping("/{planId}")
+    public ResponseEntity<CommonResDto<List<List<LocationResDto>>>> createLocation(
+            @Valid @RequestBody List<List<LocationCreateReqDto>> locationCreateReqDto,
+            @PathVariable Long planId) {
+        List<List<LocationResDto>> dto = locationService.createLocation(locationCreateReqDto, planId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "지역저장이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
 
