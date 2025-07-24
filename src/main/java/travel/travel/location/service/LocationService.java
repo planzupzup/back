@@ -32,32 +32,63 @@ public class LocationService {
     private final ImageService imageService;
     private final ImageRepository imageRepository;
 
-    public LocationResDto createLocation(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) {
-        Plan plan = planRepository.findById(locationCreateReqDto.getPlanId())
+//    public LocationResDto createLocation(LocationCreateReqDto locationCreateReqDto, List<MultipartFile> files) {
+//        Plan plan = planRepository.findById(locationCreateReqDto.getPlanId())
+//                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+//
+//        long total = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate()) + 1;
+//        if (locationCreateReqDto.getDay() < 1 || locationCreateReqDto.getDay() > total) {
+//            throw new IllegalArgumentException("요청하신 day 값이 계획 범위를 벗어났습니다.");
+//        }
+//
+//        List<Image> images = new ArrayList<>();
+//        if (files != null && !files.isEmpty()) {
+//            List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
+//            images = imageResDtos.stream()
+//                    .map(img -> imageRepository.findById(img.getImageId())
+//                            .orElseThrow(() -> new EntityNotFoundException("이미지를 찾을 수 없습니다.")))
+//                    .toList();
+//        }
+//
+//        Location findLocation = locationRepository.findTopByPlanAndDayOrderByScheduleOrderDesc(plan, locationCreateReqDto.getDay());
+//        int lastOrderNumber = (findLocation != null) ? findLocation.getScheduleOrder() : 0;
+//        int newOrderNumber = lastOrderNumber + 1;
+//
+//        Location savedLocation = locationRepository.save(
+//                LocationCreateReqDto.toEntity(locationCreateReqDto, plan, images, newOrderNumber));
+//
+//        return LocationResDto.of(savedLocation);
+//    }
+
+    public List<List<LocationResDto>> createLocation(List<List<LocationCreateReqDto>> locationCreateReqDtoList, Long planId) {
+        Plan findPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
-        long total = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate()) + 1;
-        if (locationCreateReqDto.getDay() < 1 || locationCreateReqDto.getDay() > total) {
+        List<List<LocationResDto>> result = new ArrayList<>();
+
+        for (List<LocationCreateReqDto> dayLocationList : locationCreateReqDtoList) {
+            List<LocationResDto> dayResult = new ArrayList<>();
+
+            int order = 0;
+            for (LocationCreateReqDto locationDto : dayLocationList) {
+
+                validateDay(locationDto, findPlan);
+                Location saved = locationRepository.save(
+                        LocationCreateReqDto.toEntity(locationDto, findPlan, order + 1));
+
+                dayResult.add(LocationResDto.of(saved));
+                order++;
+            }
+            result.add(dayResult);
+        }
+        return result;
+    }
+
+    private void validateDay(LocationCreateReqDto locationDto, Plan plan) {
+        long totalDays = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate()) + 1;
+        if (locationDto.getDay() < 1 || locationDto.getDay() > totalDays) {
             throw new IllegalArgumentException("요청하신 day 값이 계획 범위를 벗어났습니다.");
         }
-
-        List<Image> images = new ArrayList<>();
-        if (files != null && !files.isEmpty()) {
-            List<ImageResDto> imageResDtos = imageService.uploadFiles(files);
-            images = imageResDtos.stream()
-                    .map(img -> imageRepository.findById(img.getImageId())
-                            .orElseThrow(() -> new EntityNotFoundException("이미지를 찾을 수 없습니다.")))
-                    .toList();
-        }
-
-        Location findLocation = locationRepository.findTopByPlanAndDayOrderByScheduleOrderDesc(plan, locationCreateReqDto.getDay());
-        int lastOrderNumber = (findLocation != null) ? findLocation.getScheduleOrder() : 0;
-        int newOrderNumber = lastOrderNumber + 1;
-
-        Location savedLocation = locationRepository.save(
-                LocationCreateReqDto.toEntity(locationCreateReqDto, plan, images, newOrderNumber));
-
-        return LocationResDto.of(savedLocation);
     }
 
     public LocationResDto getLocation(Long locationId) {
