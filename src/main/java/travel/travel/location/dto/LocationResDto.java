@@ -20,7 +20,6 @@ public class LocationResDto {
 
     private double latitude;
     private double longitude;
-    private String address;
     private String description;
 
     private double rating;
@@ -47,7 +46,7 @@ public class LocationResDto {
                 .scheduleOrder(location.getScheduleOrder())
                 .latitude(location.getLatitude())
                 .longitude(location.getLongitude())
-                .address(location.getAddress())
+
                 .description(location.getDescription())
                 .rating(location.getRating())
                 .placeId(location.getPlaceId())

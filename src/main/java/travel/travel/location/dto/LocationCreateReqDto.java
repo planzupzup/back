@@ -2,7 +2,6 @@ package travel.travel.location.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import travel.travel.image.domain.Image;
 import travel.travel.location.domain.Location;
 import travel.travel.plan.domain.Plan;
 
@@ -18,8 +17,6 @@ public class LocationCreateReqDto {
 
     private double latitude;
     private double longitude;
-    private String address;
-    private Integer day;
     private String description;
 
     private double rating;
@@ -27,13 +24,12 @@ public class LocationCreateReqDto {
     private String googleImageUrl;
     private String types;
 
-    public static Location toEntity(LocationCreateReqDto dto, Plan plan, Integer newOrderNumber) {
+    public static Location toEntity(LocationCreateReqDto dto, Plan plan, Integer day, Integer newOrderNumber) {
         return Location.builder()
                 .locationName(dto.locationName)
                 .latitude(dto.latitude)
                 .longitude(dto.longitude)
-                .address(dto.address)
-                .day(dto.day)
+                .day(day)
                 .description(dto.description)
                 .rating(dto.rating)
                 .placeId(dto.placeId)
