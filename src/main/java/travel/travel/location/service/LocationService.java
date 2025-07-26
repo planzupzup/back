@@ -120,6 +120,7 @@ public class LocationService {
                 locationUpdateReqDto.getAddress(),
                 locationUpdateReqDto.getDescription(),
                 locationUpdateReqDto.getGoogleImageUrl(),
+                locationUpdateReqDto.getRating(),
                 locationUpdateReqDto.getTypes(),
                 locationUpdateReqDto.getPlaceId(),
                 images

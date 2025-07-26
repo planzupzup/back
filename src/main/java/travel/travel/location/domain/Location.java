@@ -33,6 +33,7 @@ public class Location {
     private String description;
     private Integer scheduleOrder;
 
+    private double rating;
     private String placeId;
     private String googleImageUrl;
     private String types;
@@ -52,6 +53,7 @@ public class Location {
             String address,
             String description,
             String googleImageUrl,
+            double rating,
             String types,
             String placeId,
             List<Image> images
@@ -61,6 +63,7 @@ public class Location {
         this.longitude = longitude;
         this.address = address;
         this.description = description;
+        this.rating = rating;
         this.googleImageUrl = googleImageUrl;
         this.types = types;
         this.placeId = placeId;

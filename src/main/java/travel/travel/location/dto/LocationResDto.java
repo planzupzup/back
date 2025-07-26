@@ -23,6 +23,7 @@ public class LocationResDto {
     private String address;
     private String description;
 
+    private double rating;
     private String placeId;
     private String googleImageUrl;
     private String types;
@@ -48,6 +49,7 @@ public class LocationResDto {
                 .longitude(location.getLongitude())
                 .address(location.getAddress())
                 .description(location.getDescription())
+                .rating(location.getRating())
                 .placeId(location.getPlaceId())
                 .googleImageUrl(location.getGoogleImageUrl())
                 .types(location.getTypes())
