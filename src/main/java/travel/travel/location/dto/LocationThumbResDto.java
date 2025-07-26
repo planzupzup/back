@@ -20,6 +20,7 @@ public class LocationThumbResDto {
     private double longitude;
     private String address;
 
+    private double rating;
     private String placeId;
     private String googleImageUrl;
     private String types;
@@ -35,6 +36,7 @@ public class LocationThumbResDto {
                 .address(location.getAddress())
                 .day(startDate.plusDays(location.getDay()-1))
                 .scheduleOrder(location.getScheduleOrder())
+                .rating(location.getRating())
                 .placeId(location.getPlaceId())
                 .googleImageUrl(location.getGoogleImageUrl())
                 .types(location.getTypes())

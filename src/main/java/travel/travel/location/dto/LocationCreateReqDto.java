@@ -22,6 +22,7 @@ public class LocationCreateReqDto {
     private Integer day;
     private String description;
 
+    private double rating;
     private String placeId;
     private String googleImageUrl;
     private String types;
@@ -34,6 +35,7 @@ public class LocationCreateReqDto {
                 .address(dto.address)
                 .day(dto.day)
                 .description(dto.description)
+                .rating(dto.rating)
                 .placeId(dto.placeId)
                 .scheduleOrder(newOrderNumber)
                 .plan(plan)
