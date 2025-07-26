@@ -18,7 +18,6 @@ public class LocationCreateReqDto {
 
     private double latitude;
     private double longitude;
-    private String address;
     private Integer day;
     private String description;
 
@@ -32,7 +31,6 @@ public class LocationCreateReqDto {
                 .locationName(dto.locationName)
                 .latitude(dto.latitude)
                 .longitude(dto.longitude)
-                .address(dto.address)
                 .day(dto.day)
                 .description(dto.description)
                 .rating(dto.rating)

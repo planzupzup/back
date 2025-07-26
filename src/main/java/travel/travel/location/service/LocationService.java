@@ -117,7 +117,6 @@ public class LocationService {
                 locationUpdateReqDto.getLocationName(),
                 locationUpdateReqDto.getLatitude(),
                 locationUpdateReqDto.getLongitude(),
-                locationUpdateReqDto.getAddress(),
                 locationUpdateReqDto.getDescription(),
                 locationUpdateReqDto.getGoogleImageUrl(),
                 locationUpdateReqDto.getRating(),

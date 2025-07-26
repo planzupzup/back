@@ -18,7 +18,6 @@ public class LocationThumbResDto {
 
     private double latitude;
     private double longitude;
-    private String address;
 
     private double rating;
     private String placeId;
@@ -33,7 +32,6 @@ public class LocationThumbResDto {
                 .locationName(location.getLocationName())
                 .latitude(location.getLatitude())
                 .longitude(location.getLongitude())
-                .address(location.getAddress())
                 .day(startDate.plusDays(location.getDay()-1))
                 .scheduleOrder(location.getScheduleOrder())
                 .rating(location.getRating())
