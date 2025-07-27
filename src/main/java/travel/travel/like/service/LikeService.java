@@ -2,7 +2,6 @@ package travel.travel.like.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import travel.travel.comment.domain.Comment;
 import travel.travel.comment.repository.CommentRepository;
@@ -24,11 +23,8 @@ public class LikeService {
     private final MemberRepository memberRepository;
     private final PlanRepository planRepository;
 
-    public void addLike(Long commentId) {
-        // String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+    public void addLike(Long commentId, Long memberId) {
+        Member member = getMember(memberId);
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
@@ -48,11 +44,8 @@ public class LikeService {
         }
     }
 
-    public void removeLike(Long commentId) {
-        // String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+    public void removeLike(Long commentId, Long memberId) {
+        Member member = getMember(memberId);
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
@@ -72,5 +65,10 @@ public class LikeService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
 
         return likeRepository.countByComment(comment);
+    }
+
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
     }
 }

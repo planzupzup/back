@@ -3,6 +3,7 @@ package travel.travel.plan.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import travel.travel.bookmark.domain.Bookmark;
+import travel.travel.comment.domain.Comment;
 import travel.travel.common.domain.BaseEntity;
 import travel.travel.location.domain.Location;
 import travel.travel.member.domain.Member;
@@ -43,11 +44,14 @@ public class Plan extends BaseEntity {
     @JoinColumn(name = "destination_id")
     private Destination destination;
 
-    @OneToMany(mappedBy = "plan")
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmark = new ArrayList<>();
 
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     public void updatePlan(boolean isPublic, String title, String content, LocalDate startDate, LocalDate endDate) {
         this.isPublic = isPublic;

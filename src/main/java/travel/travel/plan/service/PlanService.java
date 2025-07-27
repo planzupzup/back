@@ -41,9 +41,8 @@ public class PlanService{
     private final LocationService locationService;
     private final BookmarkRepository bookmarkRepository;
 
-    public PlanResDto createPlan(PlanCreateReqDto planCreateReqDto) {
-        Member member = getMember();
-
+    public PlanResDto createPlan(PlanCreateReqDto planCreateReqDto,Long memberId) {
+        Member member = getMember(memberId);
         Destination destination = destinationRepository.findByDestinationName(planCreateReqDto.getDestinationName())
                 .orElseThrow(()->new EntityNotFoundException("존재하지 않는 장소입니다."));
 
@@ -60,8 +59,14 @@ public class PlanService{
     }
 
     public PlanResDto getPlanByDay(Long planId, Integer day) {
-        Member member = getMember();
+        return buildPlanResDto(planId, day, null);
+    }
 
+    public PlanResDto getPlanByDay(Long planId, Integer day, Long memberId) {
+        return buildPlanResDto(planId, day, memberId);
+    }
+
+    private PlanResDto buildPlanResDto(Long planId, Integer day, Long memberId) {
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -70,13 +75,25 @@ public class PlanService{
                 .map(LocationThumbResDto::of)
                 .toList();
 
-        boolean bookmarked = isBookmarked(member, existingPlan);
+        boolean bookmarked = false;
+        if (memberId != null) {
+            Member member = getMember(memberId);
+            bookmarked = isBookmarked(member, existingPlan);
+        }
+
         return PlanResDto.of(existingPlan, filteredLocations, bookmarked);
     }
 
-
     public PlanResDto getPlan(Long planId) {
-        Member member = getMember();
+        return buildPlanResDto(planId, null);
+    }
+
+    public PlanResDto getPlan(Long planId, Long memberId) {
+        return buildPlanResDto(planId, memberId);
+    }
+
+
+    public PlanResDto buildPlanResDto(Long planId, Long memberId) {
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -85,39 +102,78 @@ public class PlanService{
                 .map(LocationThumbResDto::of)
                 .toList();
 
-        boolean bookmarked = isBookmarked(member, existingPlan);
+        boolean bookmarked = false;
+        if (memberId != null) {
+            Member member = getMember(memberId);
+            bookmarked = isBookmarked(member, existingPlan);
+        }
+
         return PlanResDto.of(existingPlan, filteredLocations, bookmarked);
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
-        Member member = getMember();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<Plan> plans = planRepository.findAllByIsPublicTrue(pageable);
+        Page<PlanThumbResDto> planDto = planRepository.findAllByIsPublicTrue(pageable)
+                .map(plan -> PlanThumbResDto.of(plan, false));
 
+        return PageApiResponse.of(planDto);
 
-        return getPlanThumbResDtoPageApiResponse(member, plans);
     }
 
-    public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto) {
-        Member member = getMember();
+    public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size, Long memberId) {
+        Member member = getMember(memberId);
+        List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
+        Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Page<PlanThumbResDto> planDto = planRepository.findAllByIsPublicTrue(pageable)
+                .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+
+        return PageApiResponse.of(planDto);
+    }
+
+    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Page<PlanThumbResDto> planDto = planRepository.searchByKeyword(keyword, pageable)
+                .map(plan -> PlanThumbResDto.of(plan, false));
+
+        return PageApiResponse.of(planDto);
+    }
+
+    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size, Long memberId) {
+        Member member = getMember(memberId);
+        List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
+        Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Page<PlanThumbResDto> planDto = planRepository.searchByKeyword(keyword, pageable)
+                .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+
+        return PageApiResponse.of(planDto);
+    }
+
+    public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto, Long memberId) {
+        Member member = getMember(memberId);
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        existingPlan.updatePlan(planUpdateReqDto.isPublic(),planUpdateReqDto.getTitle(), planUpdateReqDto.getContent(), planUpdateReqDto.getStartDate(), planUpdateReqDto.getEndDate());
-
         if (!existingPlan.getMember().getId().equals(member.getId())) {
             throw new SecurityException("수정 권한이 없습니다.");
         }
 
+        existingPlan.updatePlan(
+                planUpdateReqDto.isPublic(),planUpdateReqDto.getTitle(),
+                planUpdateReqDto.getContent(), planUpdateReqDto.getStartDate(), planUpdateReqDto.getEndDate());
+
         Plan savedPlan = planRepository.save(existingPlan);
         boolean bookmark = isBookmarked(member, existingPlan);
         return PlanResDto.of(savedPlan, bookmark);
-
     }
 
-    public PlanResDto updateScheduleOrder(Long planId, List<LocationOrderUpdateReqDto> locationOrderUpdateReqDtos) {
-        Member member = getMember();
+    public PlanResDto updateScheduleOrder(Long planId, List<LocationOrderUpdateReqDto> locationOrderUpdateReqDto, Long memberId) {
+        Member member = getMember(memberId);
 
         Plan existingPlan =  planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -126,7 +182,7 @@ public class PlanService{
             throw new SecurityException("수정 권한이 없습니다.");
         }
 
-        Map<Integer, List<LocationOrderUpdateReqDto>> groupedByDay = locationOrderUpdateReqDtos.stream()
+        Map<Integer, List<LocationOrderUpdateReqDto>> groupedByDay = locationOrderUpdateReqDto.stream()
                 .collect(Collectors.groupingBy(LocationOrderUpdateReqDto::getDay));
 
         for (Map.Entry<Integer, List<LocationOrderUpdateReqDto>> entry : groupedByDay.entrySet()) {
@@ -153,8 +209,8 @@ public class PlanService{
         return PlanResDto.of(existingPlan, bookmark);
     }
 
-    public PlanResDto deletePlan(Long planId) {
-        Member member = getMember();
+    public PlanResDto deletePlan(Long planId, Long memberId) {
+        Member member = getMember(memberId);
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
@@ -167,47 +223,13 @@ public class PlanService{
         return PlanResDto.of(existingPlan, false);
     }
 
-    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<Plan> plans = planRepository.searchByKeyword(keyword, pageable);
-
-        return getPlanThumbResDtoPageApiResponse(member, plans);
-    }
 
     private boolean isBookmarked(Member member, Plan savedPlan) {
         return bookmarkRepository.existsByMemberAndPlan(member, savedPlan);
     }
 
-    private Member getMember() {
-        //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        return memberRepository.findById(Long.valueOf(memberId))
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-    }
-
-    private List<PlanThumbResDto> getPlanThumbResDtos(Member member, Page<Plan> plans) {
-        List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
-        Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
-
-        return plans.getContent().stream()
-                .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())))
-                .toList();
-
-    }
-
-    private PageApiResponse<PlanThumbResDto> getPlanThumbResDtoPageApiResponse(Member member, Page<Plan> plans) {
-        List<PlanThumbResDto> content = getPlanThumbResDtos(member, plans);
-
-        return PageApiResponse.<PlanThumbResDto>builder()
-                .content(content)
-                .page(plans.getNumber())
-                .size(plans.getSize())
-                .totalPages(plans.getTotalPages())
-                .totalElements(plans.getTotalElements())
-                .first(plans.isFirst())
-                .last(plans.isLast())
-                .build();
     }
 }

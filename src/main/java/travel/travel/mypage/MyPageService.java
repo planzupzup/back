@@ -16,11 +16,12 @@ import travel.travel.image.domain.Image;
 import travel.travel.image.service.ImageService;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
-import travel.travel.plan.domain.Plan;
 import travel.travel.plan.dto.PlanThumbResDto;
 import travel.travel.plan.repository.PlanRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Transactional
 @Service
@@ -33,8 +34,8 @@ public class MyPageService {
     private final ImageService imageService;
     private final CommentRepository commentRepository;
 
-    public MemberResDto updateMyInfo(NickNameReqDto nickNameReqDto, MultipartFile file) {
-        Member member = getMember();
+    public MemberResDto updateMyInfo(NickNameReqDto nickNameReqDto, MultipartFile file, Long memberId) {
+        Member member = getMember(memberId);
         member.updateNickName(nickNameReqDto.getNickName());
 
         if (member.getImageUrl() != null) {
@@ -48,64 +49,44 @@ public class MyPageService {
         return MemberResDto.of(member);
     }
 
-    public MemberResDto getMyInfo() {
-        Member member = getMember();
+    public MemberResDto getMyInfo(Long memberId) {
+        Member member = getMember(memberId);
         return MemberResDto.of(member);
     }
 
-    public PageApiResponse<PlanThumbResDto> getBookmarkedPlans(int page, int size) {
-        Member member = getMember();
+    public PageApiResponse<PlanThumbResDto> getBookmarkedPlans(int page, int size, Long memberId) {
+        Member member = getMember(memberId);
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<Plan> plans = bookmarkRepository.findBookmarkedPlansByMember(member, pageable);
+        Page<PlanThumbResDto> plansDto = bookmarkRepository.findBookmarkedPlansByMember(member, pageable)
+                .map(plan -> PlanThumbResDto.of(plan, true));
 
-        List<PlanThumbResDto> content = plans.getContent().stream()
-                .map(plan -> PlanThumbResDto.of(plan, true))
-                .toList();
-
-        return PageApiResponse.<PlanThumbResDto>builder()
-                .content(content)
-                .page(plans.getNumber())
-                .size(plans.getSize())
-                .totalPages(plans.getTotalPages())
-                .totalElements(plans.getTotalElements())
-                .first(plans.isFirst())
-                .last(plans.isLast())
-                .build();
+        return PageApiResponse.of(plansDto);
     }
 
-    public PageApiResponse<PlanThumbResDto> getMyPlans(int page, int size) {
-        Member member = getMember();
+    public PageApiResponse<PlanThumbResDto> getMyPlans(int page, int size, Long memberId) {
+        Member member = getMember(memberId);
+        List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
+        Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<Plan> plans = planRepository.findByMember(member, pageable);
+        Page<PlanThumbResDto> planDto = planRepository.findByMember(member, pageable)
+                .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
 
-        List<PlanThumbResDto> content = plans.getContent().stream()
-                .map(plan -> PlanThumbResDto.of(plan, false))
-                .toList();
-
-        return PageApiResponse.<PlanThumbResDto>builder()
-                .content(content)
-                .page(plans.getNumber())
-                .size(plans.getSize())
-                .totalPages(plans.getTotalPages())
-                .totalElements(plans.getTotalElements())
-                .first(plans.isFirst())
-                .last(plans.isLast())
-                .build();
+        return PageApiResponse.of(planDto);
     }
 
 
-    public MemberResDto deleteMyInfo() {
-        Member member = getMember();
+    public MemberResDto deleteMyInfo(Long memberId) {
+        Member member = getMember(memberId);
         bookmarkRepository.deleteByMember(member);
         commentRepository.deleteByMember(member);
         member.withdraw();
         return MemberResDto.of(member);
     }
 
-    private Member getMember() {
-        //        String memberId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String memberId = "1";
-        return memberRepository.findById(Long.valueOf(memberId))
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
     }
 }
