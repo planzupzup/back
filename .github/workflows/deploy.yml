@@ -1,28 +1,41 @@
-name: Deploy To EC2 
+name: Deploy To EC2
 
-on:  
-  push:    
-    branches:      
-      - develop  
-      
-jobs:  
-  Deploy:    
-    runs-on: ubuntu-latest    
-    steps:      
-      - name: SSH로 EC2에 접속하기        
-        uses: appleboy/ssh-action@master
-        env: 
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH로 EC2에 접속해서 배포
+        uses: appleboy/ssh-action@v0.1.10
+        env:
           APPLICATION_PROPERTIES: ${{ secrets.APPLICATION_PROPERTIES }}
-        with:          
+        with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }} 
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           envs: APPLICATION_PROPERTIES
-          script: |       
+          script: |
             cd /home/ubuntu/back
-            rm -rf src/main/resources/application.yml
-            git pull origin develop
+            echo "=== SSH 접속 성공 ==="
+
+            # 최신 코드 강제 동기화
+            git fetch origin develop
+            git reset --hard origin/develop
+
             echo "$APPLICATION_PROPERTIES" > src/main/resources/application.yml
-            ./gradlew clean build
+
+            echo "=== 빌드 시작 ==="
+            ./gradlew clean build -x test
+            echo "=== 빌드 완료 ==="
+
+            echo "=== 기존 프로세스 종료 ==="
             sudo fuser -k -n tcp 8080 || true
+
+            echo "=== 애플리케이션 실행 ==="
             nohup java -jar build/libs/*SNAPSHOT.jar > ./output.log 2>&1 &
+            echo "=== 배포 완료 ==="
