@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import travel.travel.common.dto.CommonResDto;
 import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.service.AuthService;
 import travel.travel.location.dto.LocationOrderUpdateReqDto;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
@@ -30,6 +31,8 @@ import java.util.List;
 public class PlanController {
 
     private final PlanService planService;
+    private final AuthService authService;
+  
     private final Bucket bucket = Bucket4j.builder()
             .addLimit(Bandwidth.simple(5, Duration.ofSeconds(1)))
             .build();
@@ -42,20 +45,30 @@ public class PlanController {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                                  .body(CommonResDto.of(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.", null));
         }
-        PlanResDto dto = planService.createPlan(planCreateReqDto);
+      
+        Long memberId = authService.getAuthenticatedUserId();
+        PlanResDto dto = planService.createPlan(planCreateReqDto, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "계획생성이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
-    }
-
-    @GetMapping("/{planId}")
-    public ResponseEntity<CommonResDto<PlanResDto>> getPlan(@PathVariable Long planId) {
-        PlanResDto dto = planService.getPlan(planId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획상세조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @GetMapping("/{planId}/{day}")
     public ResponseEntity<CommonResDto<PlanResDto>> getPlanByDay(@PathVariable Long planId, @PathVariable Integer day) {
-        PlanResDto dto = planService.getPlanByDay(planId, day);
+
+        PlanResDto dto = authService.isAuthenticatedUser()
+                ? planService.getPlanByDay(planId, day, authService.getAuthenticatedUserId())
+                : planService.getPlanByDay(planId, day);
+
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "날짜별 지역목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
+
+    @GetMapping("/{planId}")
+    public ResponseEntity<CommonResDto<PlanResDto>> getPlan(@PathVariable Long planId) {
+
+        PlanResDto dto = authService.isAuthenticatedUser()
+                ? planService.getPlan(planId, authService.getAuthenticatedUserId())
+                : planService.getPlan(planId);
+
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획상세조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @GetMapping
@@ -64,31 +77,13 @@ public class PlanController {
             @RequestParam(defaultValue = "10") int size
             ) {
 
-        PageApiResponse<PlanThumbResDto> dto = planService.getAllPlan(page, size);
+        PageApiResponse<PlanThumbResDto> dto = authService.isAuthenticatedUser()
+                ? planService.getAllPlan(page, size, authService.getAuthenticatedUserId())
+                : planService.getAllPlan(page, size);
+
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
-
-    @PutMapping("/{planId}/order")
-    public ResponseEntity<CommonResDto<PlanResDto>> updateScheduleOrder(
-            @PathVariable Long planId,
-            @RequestBody List<LocationOrderUpdateReqDto> locationOrderUpdateReqDtos) {
-
-        PlanResDto dto = planService.updateScheduleOrder(planId, locationOrderUpdateReqDtos);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "지역날짜, 순서 변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
-    }
-
-    @PutMapping("/{planId}")
-    public ResponseEntity<CommonResDto<PlanResDto>> updatePlan(@PathVariable Long planId, @Valid @RequestBody PlanUpdateReqDto planUpdateReqDto) {
-        PlanResDto dto = planService.updatePlan(planId, planUpdateReqDto);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{planId}")
-    public ResponseEntity<CommonResDto<PlanResDto>> deletePlan(@PathVariable Long planId) {
-        PlanResDto dto = planService.deletePlan(planId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
-    }
 
     @GetMapping("/search/{keyword}")
     public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getAllPlanByKeyword(
@@ -96,7 +91,34 @@ public class PlanController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PageApiResponse<PlanThumbResDto> dto = planService.getAllPlanByKeyword(keyword, page, size);
+        PageApiResponse<PlanThumbResDto> dto = authService.isAuthenticatedUser()
+                ? planService.getAllPlanByKeyword(keyword, page, size, authService.getAuthenticatedUserId())
+                : planService.getAllPlanByKeyword(keyword, page, size);
+
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
+
+    @PutMapping("/{planId}/order")
+    public ResponseEntity<CommonResDto<PlanResDto>> updateScheduleOrder(
+            @PathVariable Long planId,
+            @RequestBody List<LocationOrderUpdateReqDto> locationOrderUpdateReqDtos) {
+        Long memberId = authService.getAuthenticatedUserId();
+        PlanResDto dto = planService.updateScheduleOrder(planId, locationOrderUpdateReqDtos, memberId);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "지역날짜, 순서 변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
+
+    @PutMapping("/{planId}")
+    public ResponseEntity<CommonResDto<PlanResDto>> updatePlan(@PathVariable Long planId, @Valid @RequestBody PlanUpdateReqDto planUpdateReqDto) {
+        Long memberId = authService.getAuthenticatedUserId();
+        PlanResDto dto = planService.updatePlan(planId, planUpdateReqDto, memberId);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{planId}")
+    public ResponseEntity<CommonResDto<PlanResDto>> deletePlan(@PathVariable Long planId) {
+        Long memberId = authService.getAuthenticatedUserId();
+        PlanResDto dto = planService.deletePlan(planId, memberId);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
+
 }

@@ -13,9 +13,9 @@ public class LocationUpdateReqDto {
 
     private double latitude;
     private double longitude;
-    private String address;
     private String description;
 
+    private double rating;
     private String placeId;
     private String googleImageUrl;
     private String types;

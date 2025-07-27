@@ -13,14 +13,13 @@ public class LocationThumbResDto {
 
     private Long locationId;
     private String locationName;
+    private LocalDate day;
+    private Integer scheduleOrder;
 
     private double latitude;
     private double longitude;
-    private String address;
-    private LocalDate day;
 
-    private Integer scheduleOrder;
-
+    private double rating;
     private String placeId;
     private String googleImageUrl;
     private String types;
@@ -33,9 +32,9 @@ public class LocationThumbResDto {
                 .locationName(location.getLocationName())
                 .latitude(location.getLatitude())
                 .longitude(location.getLongitude())
-                .address(location.getAddress())
                 .day(startDate.plusDays(location.getDay()-1))
                 .scheduleOrder(location.getScheduleOrder())
+                .rating(location.getRating())
                 .placeId(location.getPlaceId())
                 .googleImageUrl(location.getGoogleImageUrl())
                 .types(location.getTypes())

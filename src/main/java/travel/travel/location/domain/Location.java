@@ -3,7 +3,6 @@ package travel.travel.location.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import travel.travel.image.domain.Image;
-import travel.travel.location.dto.LocationUpdateReqDto;
 import travel.travel.plan.domain.Plan;
 
 import java.util.ArrayList;
@@ -21,18 +20,16 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long locationId;
-
     private String locationName;
 
     private double latitude;
     private double longitude;
 
-    private String address;
-
-    private Integer day;
     private String description;
+    private Integer day;
     private Integer scheduleOrder;
 
+    private double rating;
     private String placeId;
     private String googleImageUrl;
     private String types;
@@ -49,9 +46,9 @@ public class Location {
             String locationName,
             double latitude,
             double longitude,
-            String address,
             String description,
             String googleImageUrl,
+            double rating,
             String types,
             String placeId,
             List<Image> images
@@ -59,8 +56,8 @@ public class Location {
         this.locationName = locationName;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.address = address;
         this.description = description;
+        this.rating = rating;
         this.googleImageUrl = googleImageUrl;
         this.types = types;
         this.placeId = placeId;
