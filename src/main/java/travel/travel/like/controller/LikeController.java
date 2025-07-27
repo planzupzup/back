@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import travel.travel.common.dto.CommonResDto;
+import travel.travel.common.service.AuthService;
 import travel.travel.like.service.LikeService;
 
 @RestController
@@ -13,17 +14,21 @@ import travel.travel.like.service.LikeService;
 @Slf4j
 @RequestMapping("/api/comment")
 public class LikeController {
+
     private final LikeService likeService;
+    private final AuthService authService;
 
     @PostMapping("/{commentId}/like")
     public ResponseEntity<CommonResDto<Long>> addLike (@PathVariable Long commentId) {
-        likeService.addLike(commentId);
+        Long memberId = authService.getAuthenticatedUserId();
+        likeService.addLike(commentId, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "좋아요가 성공적으로 되었습니다.", commentId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{commentId}/like")
     public ResponseEntity<CommonResDto<Long>> removeLike(@PathVariable Long commentId) {
-        likeService.removeLike(commentId);
+        Long memberId = authService.getAuthenticatedUserId();
+        likeService.removeLike(commentId, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "좋아요취소가 성공적으로 되었습니다.", commentId), HttpStatus.OK);
     }
 

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import travel.travel.bookmark.service.BookmarkService;
 import travel.travel.common.dto.CommonResDto;
+import travel.travel.common.service.AuthService;
 
 
 @RequiredArgsConstructor
@@ -14,17 +15,19 @@ import travel.travel.common.dto.CommonResDto;
 public class BookmarkController {
     
     private final BookmarkService bookmarkService;
-
+    private final AuthService authService;
 
     @PostMapping("/{planId}/bookmark")
     public ResponseEntity<CommonResDto<Long>> addBookmark (@PathVariable Long planId) {
-        bookmarkService.addBookmark(planId);
+        Long memberId = authService.getAuthenticatedUserId();
+        bookmarkService.addBookmark(planId, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크추가가 성공적으로 되었습니다.",planId ), HttpStatus.OK);
     }
 
     @DeleteMapping("/{planId}/bookmark")
     public ResponseEntity<CommonResDto<Long>> removeBookmark(@PathVariable Long planId) {
-        bookmarkService.removeBookmark(planId);
+        Long memberId = authService.getAuthenticatedUserId();
+        bookmarkService.removeBookmark(planId, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크취소가 성공적으로 되었습니다.", planId), HttpStatus.OK);
     }
 
