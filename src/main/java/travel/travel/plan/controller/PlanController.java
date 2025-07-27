@@ -1,5 +1,9 @@
 package travel.travel.plan.controller;
 
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
+import io.github.bucket4j.ConsumptionProbe;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +19,7 @@ import travel.travel.plan.dto.PlanThumbResDto;
 import travel.travel.plan.dto.PlanUpdateReqDto;
 import travel.travel.plan.service.PlanService;
 
+import java.time.Duration;
 import java.util.List;
 
 
@@ -23,10 +28,20 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/api/plan")
 public class PlanController {
+
     private final PlanService planService;
+    private final Bucket bucket = Bucket4j.builder()
+            .addLimit(Bandwidth.simple(5, Duration.ofSeconds(1)))
+            .build();
+
 
     @PostMapping
     public ResponseEntity<CommonResDto<PlanResDto>> createPlan(@Valid @RequestBody PlanCreateReqDto planCreateReqDto) {
+        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+        if (!probe.isConsumed()) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                                 .body(CommonResDto.of(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.", null));
+        }
         PlanResDto dto = planService.createPlan(planCreateReqDto);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "계획생성이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
