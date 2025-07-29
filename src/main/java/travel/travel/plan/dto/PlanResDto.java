@@ -3,11 +3,9 @@ package travel.travel.plan.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import travel.travel.location.dto.LocationResDto;
-import travel.travel.location.dto.LocationThumbResDto;
 import travel.travel.plan.domain.Plan;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
