@@ -11,7 +11,7 @@ import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.common.dto.PageApiResponse;
 import travel.travel.location.domain.Location;
 import travel.travel.location.dto.LocationOrderUpdateReqDto;
-import travel.travel.location.dto.LocationThumbResDto;
+import travel.travel.location.dto.LocationResDto;
 import travel.travel.location.repository.LocationRepository;
 import travel.travel.location.service.LocationService;
 import travel.travel.member.domain.Member;
@@ -55,7 +55,7 @@ public class PlanService{
         );
 
         boolean bookmarked = isBookmarked(member, savedPlan);
-        return PlanResDto.of(savedPlan, bookmarked);
+        return PlanResDto.of(savedPlan, bookmarked, null);
     }
 
     public PlanResDto getPlanByDay(Long planId, Integer day) {
@@ -70,9 +70,9 @@ public class PlanService{
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
-        List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
+        List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
                 .filter(location -> location.getDay().equals(day))
-                .map(LocationThumbResDto::of)
+                .map(LocationResDto::of)
                 .toList();
 
         boolean bookmarked = false;
@@ -81,7 +81,7 @@ public class PlanService{
             bookmarked = isBookmarked(member, existingPlan);
         }
 
-        return PlanResDto.of(existingPlan, filteredLocations, bookmarked);
+        return PlanResDto.of(existingPlan, bookmarked, filteredLocations);
     }
 
     public PlanResDto getPlan(Long planId) {
@@ -98,8 +98,8 @@ public class PlanService{
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
-        List<LocationThumbResDto> filteredLocations = existingPlan.getLocations().stream()
-                .map(LocationThumbResDto::of)
+        List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
+                .map(LocationResDto::of)
                 .toList();
 
         boolean bookmarked = false;
@@ -108,7 +108,7 @@ public class PlanService{
             bookmarked = isBookmarked(member, existingPlan);
         }
 
-        return PlanResDto.of(existingPlan, filteredLocations, bookmarked);
+        return PlanResDto.of(existingPlan, bookmarked, filteredLocations);
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
@@ -167,9 +167,13 @@ public class PlanService{
                 planUpdateReqDto.isPublic(),planUpdateReqDto.getTitle(),
                 planUpdateReqDto.getContent(), planUpdateReqDto.getStartDate(), planUpdateReqDto.getEndDate());
 
+        List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
+                .map(LocationResDto::of)
+                .toList();
+
         Plan savedPlan = planRepository.save(existingPlan);
         boolean bookmark = isBookmarked(member, existingPlan);
-        return PlanResDto.of(savedPlan, bookmark);
+        return PlanResDto.of(savedPlan, bookmark, filteredLocations);
     }
 
     public PlanResDto updateScheduleOrder(Long planId, List<LocationOrderUpdateReqDto> locationOrderUpdateReqDto, Long memberId) {
@@ -205,8 +209,12 @@ public class PlanService{
             locationService.autoScheduleOrder(reordered);
         }
 
+        List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
+                .map(LocationResDto::of)
+                .toList();
+
         boolean bookmark = isBookmarked(member, existingPlan);
-        return PlanResDto.of(existingPlan, bookmark);
+        return PlanResDto.of(existingPlan, bookmark, filteredLocations);
     }
 
     public PlanResDto deletePlan(Long planId, Long memberId) {
@@ -220,7 +228,7 @@ public class PlanService{
         }
 
         planRepository.delete(existingPlan);
-        return PlanResDto.of(existingPlan, false);
+        return PlanResDto.of(existingPlan, false, null);
     }
 
 

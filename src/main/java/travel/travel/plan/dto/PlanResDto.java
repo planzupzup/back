@@ -2,6 +2,7 @@ package travel.travel.plan.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import travel.travel.location.dto.LocationResDto;
 import travel.travel.location.dto.LocationThumbResDto;
 import travel.travel.plan.domain.Plan;
 
@@ -27,7 +28,7 @@ public class PlanResDto {
 
     private String destinationName;
 
-    private List<LocationThumbResDto> locations;
+    private List<LocationResDto> locations;
 
     @JsonProperty("isPublic")
     public boolean getIsPublic() {
@@ -39,7 +40,7 @@ public class PlanResDto {
         return isBookMarked;
     }
 
-    public static PlanResDto of(Plan plan, List<LocationThumbResDto> locations, boolean bookMarked) {
+    public static PlanResDto of(Plan plan, boolean bookMarked, List<LocationResDto> locationResDtoList) {
         return PlanResDto.builder()
                 .planId(plan.getPlanId())
                 .isPublic(plan.isPublic())
@@ -51,17 +52,8 @@ public class PlanResDto {
                 .startDate(plan.getStartDate())
                 .endDate(plan.getEndDate())
                 .destinationName(plan.getDestination().getDestinationName())
-                .locations(locations)
+                .locations(locationResDtoList)
                 .build();
-    }
-
-    public static PlanResDto of(Plan plan, boolean bookMarked) {
-        List<LocationThumbResDto> locations = (plan.getLocations() != null && !plan.getLocations().isEmpty())
-                ? plan.getLocations().stream()
-                .map(LocationThumbResDto::of)
-                .toList()
-                : new ArrayList<>();
-        return of(plan, locations, bookMarked);
     }
 
 }

@@ -10,7 +10,7 @@ public class AuthService {
 
     public Long getAuthenticatedUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return 2L;
+        return 1L;
         // if(!isAuthenticatedUser()) throw new SecurityException("존재하지 않는 회원입니다.");
         // return Long.parseLong(authentication.getPrincipal().toString());
     }
