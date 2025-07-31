@@ -48,6 +48,7 @@ class PlanControllerTest {
     private PlanCreateReqDto createReqDto;
     private PlanResDto planResDto;
     private PlanThumbResDto planThumbResDto;
+    private PlanThumbResDto planThumbResDto2;
 
     @BeforeEach
     void setUp() {
@@ -78,8 +79,16 @@ class PlanControllerTest {
                 .planId(1L)
                 .title("Test Plan")
                 .isBookMarked(false)
-                .nickName("testuser")
-                .destinationName("Seoul")
+                .nickName("test-user")
+                .destinationName("서울")
+                .build();
+
+        planThumbResDto2 = PlanThumbResDto.builder()
+                .planId(1L)
+                .title("Test Plan2")
+                .isBookMarked(false)
+                .nickName("test-user")
+                .destinationName("서울")
                 .build();
 
     }
@@ -187,6 +196,49 @@ class PlanControllerTest {
                 .andExpect(jsonPath("$.result.content[0].title").value("Test Plan"));
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("계획 검색 성공")
+    void getAllPlanByKeyword_Success() throws Exception {
+        // given
+        PageApiResponse<PlanThumbResDto> pageResponse = PageApiResponse.of(
+                new org.springframework.data.domain.PageImpl<>(List.of(planThumbResDto, planThumbResDto2))
+        );
+        given(authService.isAuthenticatedUser()).willReturn(false);
+        given(planService.getAllPlanByKeyword("Test", 0, 10)).willReturn(pageResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/plan/search/Test")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.statusMessage").value("계획목록조회가 성공적으로 되었습니다."))
+                .andExpect(jsonPath("$.result.content[0].title").value("Test Plan"))
+                .andExpect(jsonPath("$.result.content.length()").value(2));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("계획 검색 성공")
+    void getAllPlanByKeyword_Success_V2() throws Exception {
+        // given
+        PageApiResponse<PlanThumbResDto> pageResponse = PageApiResponse.of(
+                new org.springframework.data.domain.PageImpl<>(List.of(planThumbResDto2))
+        );
+        given(authService.isAuthenticatedUser()).willReturn(false);
+        given(planService.getAllPlanByKeyword("2", 0, 10)).willReturn(pageResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/plan/search/2")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.statusMessage").value("계획목록조회가 성공적으로 되었습니다."))
+                .andExpect(jsonPath("$.result.content[0].title").value("Test Plan2"))
+                .andExpect(jsonPath("$.result.content.length()").value(1));
+    }
 
 
 }
