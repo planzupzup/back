@@ -137,4 +137,23 @@ class PlanControllerTest {
 
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("계획 상세 조회 성공 - 비인증 사용자")
+    void getPlan_Success_UnauthenticatedUser() throws Exception {
+        // given
+        given(authService.isAuthenticatedUser()).willReturn(false);
+        given(planService.getPlan(1L)).willReturn(planResDto);
+
+        // when & then
+        mockMvc.perform(get("/api/plan/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.statusMessage").value("계획상세조회가 성공적으로 되었습니다."))
+                .andExpect(jsonPath("$.result.title").value("Test Plan"))
+                .andExpect(jsonPath("$.result.content").value("Test Content"))
+                .andExpect(jsonPath("$.result.isBookMarked").value(false));
+    }
+
+
 }
