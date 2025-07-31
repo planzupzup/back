@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -114,6 +115,26 @@ class PlanControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("계획 상세 조회 성공 - 인증된 사용자")
+    void getPlan_Success_AuthenticatedUser() throws Exception {
+        // given
+        given(authService.isAuthenticatedUser()).willReturn(true);
+        given(authService.getAuthenticatedUserId()).willReturn(1L);
+        given(planService.getPlan(1L, 1L)).willReturn(planResDto);
+
+        // when & then
+        mockMvc.perform(get("/api/plan/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.statusMessage").value("계획상세조회가 성공적으로 되었습니다."))
+                .andExpect(jsonPath("$.result.title").value("Test Plan"))
+                .andExpect(jsonPath("$.result.content").value("Test Content"))
+                .andExpect(jsonPath("$.result.isBookMarked").value(false));
+
     }
 
 }
