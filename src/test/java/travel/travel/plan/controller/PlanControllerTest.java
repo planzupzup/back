@@ -94,4 +94,26 @@ class PlanControllerTest {
 
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("계획 생성 실패 - 유효성 검증 오류")
+    void createPlan_FailByValidation() throws Exception {
+        // given
+        PlanCreateReqDto invalidDto = PlanCreateReqDto.builder()
+                .title("")
+                .content("Test Content")
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 1, 3))
+                .isPublic(true)
+                .destinationName("Seoul")
+                .build();
+
+        // when & then
+        mockMvc.perform(post("/api/plan")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest());
+    }
+
 }
