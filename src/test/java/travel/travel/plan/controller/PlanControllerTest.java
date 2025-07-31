@@ -15,6 +15,7 @@ import travel.travel.common.service.AuthService;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
 import travel.travel.plan.dto.PlanThumbResDto;
+import travel.travel.plan.dto.PlanUpdateReqDto;
 import travel.travel.plan.service.PlanService;
 
 import java.time.LocalDate;
@@ -24,8 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,7 +46,9 @@ class PlanControllerTest {
     AuthService authService;
 
     private PlanCreateReqDto createReqDto;
+    private PlanUpdateReqDto updateReqDto;
     private PlanResDto planResDto;
+    private PlanResDto updatedPlanResDto;
     private PlanThumbResDto planThumbResDto;
     private PlanThumbResDto planThumbResDto2;
 
@@ -62,6 +64,15 @@ class PlanControllerTest {
                 .destinationName("서울")
                 .build();
 
+        updateReqDto = PlanUpdateReqDto.builder()
+                .title("Updated Plan")
+                .content("Updated Content")
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 1, 5))
+                .isPublic(false)
+                .build();
+
+
         planResDto = PlanResDto.builder()
                 .planId(1L)
                 .title("Test Plan")
@@ -73,6 +84,12 @@ class PlanControllerTest {
                 .nickName("test-user")
                 .destinationName("서울")
                 .locations(List.of())
+                .build();
+
+        updatedPlanResDto = PlanResDto.builder()
+                .planId(1L)
+                .title(updateReqDto.getTitle())
+                .content(updateReqDto.getContent())
                 .build();
 
         planThumbResDto = PlanThumbResDto.builder()
@@ -240,5 +257,23 @@ class PlanControllerTest {
                 .andExpect(jsonPath("$.result.content.length()").value(1));
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("계획 수정 성공")
+    void updatePlan_Success() throws Exception {
+        // given
+        given(authService.getAuthenticatedUserId()).willReturn(1L);
+        given(planService.updatePlan(eq(1L), any(PlanUpdateReqDto.class), eq(1L))).willReturn(updatedPlanResDto);
+
+        // when & then
+        mockMvc.perform(put("/api/plan/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateReqDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.statusMessage").value("계획수정이 성공적으로 되었습니다."))
+                .andExpect(jsonPath("$.result.title").value("Updated Plan"));
+    }
 
 }
