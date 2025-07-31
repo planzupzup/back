@@ -276,4 +276,22 @@ class PlanControllerTest {
                 .andExpect(jsonPath("$.result.title").value("Updated Plan"));
     }
 
+
+    @Test
+    @WithMockUser
+    @DisplayName("계획 삭제 성공")
+    void deletePlan_Success() throws Exception {
+        // given
+        given(authService.getAuthenticatedUserId()).willReturn(1L);
+        given(planService.deletePlan(1L, 1L)).willReturn(planResDto);
+
+        // when & then
+        mockMvc.perform(delete("/api/plan/1")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.statusMessage").value("계획삭제가 성공적으로 되었습니다."))
+                .andExpect(jsonPath("$.result.title").value("Test Plan"));
+    }
+
 }
