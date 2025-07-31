@@ -10,9 +10,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import travel.travel.common.dto.PageApiResponse;
 import travel.travel.common.service.AuthService;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
+import travel.travel.plan.dto.PlanThumbResDto;
 import travel.travel.plan.service.PlanService;
 
 import java.time.LocalDate;
@@ -45,6 +47,7 @@ class PlanControllerTest {
 
     private PlanCreateReqDto createReqDto;
     private PlanResDto planResDto;
+    private PlanThumbResDto planThumbResDto;
 
     @BeforeEach
     void setUp() {
@@ -69,6 +72,14 @@ class PlanControllerTest {
                 .nickName("test-user")
                 .destinationName("서울")
                 .locations(List.of())
+                .build();
+
+        planThumbResDto = PlanThumbResDto.builder()
+                .planId(1L)
+                .title("Test Plan")
+                .isBookMarked(false)
+                .nickName("testuser")
+                .destinationName("Seoul")
                 .build();
 
     }
@@ -154,6 +165,28 @@ class PlanControllerTest {
                 .andExpect(jsonPath("$.result.content").value("Test Content"))
                 .andExpect(jsonPath("$.result.isBookMarked").value(false));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("계획 목록 조회 성공")
+    void getAllPlan_Success() throws Exception {
+        // given
+        PageApiResponse<PlanThumbResDto> pageResponse = PageApiResponse.of(
+                new org.springframework.data.domain.PageImpl<>(List.of(planThumbResDto))
+        );
+        given(authService.isAuthenticatedUser()).willReturn(false);
+        given(planService.getAllPlan(0, 10)).willReturn(pageResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/plan")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andExpect(jsonPath("$.statusMessage").value("계획목록조회가 성공적으로 되었습니다."))
+                .andExpect(jsonPath("$.result.content[0].title").value("Test Plan"));
+    }
+
 
 
 }
