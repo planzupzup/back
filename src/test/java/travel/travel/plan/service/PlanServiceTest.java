@@ -275,5 +275,17 @@ class PlanServiceTest {
                 .hasMessage("삭제 권한이 없습니다.");
     }
 
+    @Test
+    @DisplayName("존재하지 않는 회원 조회시 예외 발생")
+    void getMember_FailByNotFound() {
+        // given
+        given(memberRepository.findById(999L)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> planService.createPlan(createReqDto, 999L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("존재하지 않는 회원입니다.");
+    }
+
 
 }
