@@ -8,8 +8,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
@@ -17,12 +18,12 @@ import travel.travel.plan.domain.Destination;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
-import travel.travel.plan.dto.PlanUpdateReqDto;
 import travel.travel.plan.repository.DestinationRepository;
 import travel.travel.plan.repository.PlanRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -52,6 +53,7 @@ class PlanServiceTest {
     private Member testMember;
     private Destination testDestination;
     private Plan testPlan;
+    private Plan testPlan2;
     private PlanCreateReqDto createReqDto;
 
 
@@ -66,6 +68,18 @@ class PlanServiceTest {
                 .planId(1L)
                 .title("Test Plan")
                 .content("Test Content")
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 1, 3))
+                .isPublic(true)
+                .member(testMember)
+                .destination(testDestination)
+                .locations(new ArrayList<>())
+                .build();
+
+        testPlan2 = Plan.builder()
+                .planId(2L)
+                .title("Test Plan2")
+                .content("Test Content2")
                 .startDate(LocalDate.of(2024, 1, 1))
                 .endDate(LocalDate.of(2024, 1, 3))
                 .isPublic(true)
@@ -166,6 +180,25 @@ class PlanServiceTest {
         assertThatThrownBy(() -> planService.getPlan(1L, 1L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("존재하지 않는 계획입니다.");
+    }
+
+    @Test
+    @DisplayName("공개 계획 목록 조회 성공")
+    void getAllPlan_Success() {
+        // given
+        List<Plan> plans = List.of(testPlan, testPlan2);
+        Page<Plan> planPage = new PageImpl<>(plans);
+
+        given(planRepository.findAllByIsPublicTrue(any(Pageable.class))).willReturn(planPage);
+
+        // when
+        var result = planService.getAllPlan(0, 10);
+
+        // then
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent().getFirst().getTitle()).isEqualTo("Test Plan");
+        assertThat(result.getContent().get(1).getTitle()).isEqualTo("Test Plan2");
+
     }
 
 
