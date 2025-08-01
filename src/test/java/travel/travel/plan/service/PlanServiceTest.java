@@ -228,6 +228,21 @@ class PlanServiceTest {
         verify(planRepository).save(testPlan);
     }
 
+    @Test
+    @DisplayName("계획 수정 실패 - 권한 없음")
+    void updatePlan_FailByNoPermission() {
+        // given
+        Member anotherMember = new Member("kakao456");
+        anotherMember.updateNickName("another");
+
+        given(memberRepository.findById(2L)).willReturn(Optional.of(anotherMember));
+        given(planRepository.findById(1L)).willReturn(Optional.of(testPlan));
+
+        // when & then
+        assertThatThrownBy(() -> planService.updatePlan(1L, updateReqDto, 2L))
+                .isInstanceOf(SecurityException.class)
+                .hasMessage("수정 권한이 없습니다.");
+    }
 
 
 
