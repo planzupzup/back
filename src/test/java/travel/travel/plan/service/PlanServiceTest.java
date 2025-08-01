@@ -244,6 +244,22 @@ class PlanServiceTest {
                 .hasMessage("수정 권한이 없습니다.");
     }
 
+    @Test
+    @DisplayName("계획 삭제 성공")
+    void deletePlan_Success() {
+        // given
+        given(memberRepository.findById(1L)).willReturn(Optional.of(testMember));
+        given(planRepository.findById(1L)).willReturn(Optional.of(testPlan));
+
+        // when
+        PlanResDto result = planService.deletePlan(1L, 1L);
+
+        // then
+        assertThat(result.getTitle()).isEqualTo("Test Plan");
+        verify(planRepository).delete(testPlan);
+    }
+
+
 
 
 }
