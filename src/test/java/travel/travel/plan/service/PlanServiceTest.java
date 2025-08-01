@@ -140,4 +140,20 @@ class PlanServiceTest {
                 .hasMessage("시작일은 종료일보다 이전이어야 합니다.");
     }
 
+    @Test
+    @DisplayName("계획 조회 성공")
+    void getPlan_Success() {
+        // given
+        given(planRepository.findById(1L)).willReturn(Optional.of(testPlan));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(testMember));
+        given(bookmarkRepository.existsByMemberAndPlan(testMember, testPlan)).willReturn(true);
+
+        // when
+        PlanResDto result = planService.getPlan(1L, 1L);
+
+        // then
+        assertThat(result.getTitle()).isEqualTo("Test Plan");
+        assertThat(result.getIsBookMarked()).isTrue();
+    }
+
 }
