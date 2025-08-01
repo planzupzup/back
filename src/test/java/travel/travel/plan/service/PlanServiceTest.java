@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
@@ -18,6 +19,7 @@ import travel.travel.plan.domain.Destination;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
+import travel.travel.plan.dto.PlanUpdateReqDto;
 import travel.travel.plan.repository.DestinationRepository;
 import travel.travel.plan.repository.PlanRepository;
 
@@ -55,12 +57,13 @@ class PlanServiceTest {
     private Plan testPlan;
     private Plan testPlan2;
     private PlanCreateReqDto createReqDto;
-
+    private PlanUpdateReqDto updateReqDto;
 
     @BeforeEach
     void setUp() {
         testMember = new Member("kakao123");
         testMember.updateNickName("test-user");
+        ReflectionTestUtils.setField(testMember, "id", 1L);
 
         testDestination = new Destination(1L, "서울");
 
@@ -95,6 +98,14 @@ class PlanServiceTest {
                 .endDate(LocalDate.of(2024, 1, 3))
                 .isPublic(true)
                 .destinationName("서울")
+                .build();
+
+        updateReqDto = PlanUpdateReqDto.builder()
+                .title("Updated Plan")
+                .content("Updated Content")
+                .startDate(LocalDate.of(2024, 1, 1))
+                .endDate(LocalDate.of(2024, 1, 5))
+                .isPublic(false)
                 .build();
 
     }
@@ -198,7 +209,23 @@ class PlanServiceTest {
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.getContent().getFirst().getTitle()).isEqualTo("Test Plan");
         assertThat(result.getContent().get(1).getTitle()).isEqualTo("Test Plan2");
+    }
 
+    @Test
+    @DisplayName("계획 수정 성공")
+    void updatePlan_Success() {
+        // given
+        given(planRepository.findById(1L)).willReturn(Optional.of(testPlan));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(testMember));
+        given(bookmarkRepository.existsByMemberAndPlan(testMember, testPlan)).willReturn(true);
+        given(planRepository.save(any(Plan.class))).willReturn(testPlan);
+
+        // when
+        PlanResDto result = planService.updatePlan(1L, updateReqDto, testMember.getId());
+
+        // then
+        assertThat(result).isNotNull();
+        verify(planRepository).save(testPlan);
     }
 
 
