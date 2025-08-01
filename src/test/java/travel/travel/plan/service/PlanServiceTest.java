@@ -118,4 +118,26 @@ class PlanServiceTest {
                 .hasMessage("존재하지 않는 장소입니다.");
     }
 
+    @Test
+    @DisplayName("계획 생성 실패 - 잘못된 날짜")
+    void createPlan_FailByInvalidDate() {
+        // given
+        PlanCreateReqDto invalidDateDto = PlanCreateReqDto.builder()
+                .title("Test Plan")
+                .content("Test Content")
+                .startDate(LocalDate.of(2024, 1, 5))
+                .endDate(LocalDate.of(2024, 1, 3))
+                .isPublic(true)
+                .destinationName("Seoul")
+                .build();
+
+        given(memberRepository.findById(1L)).willReturn(Optional.of(testMember));
+        given(destinationRepository.findByDestinationName("Seoul")).willReturn(Optional.of(testDestination));
+
+        // when & then
+        assertThatThrownBy(() -> planService.createPlan(invalidDateDto, 1L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("시작일은 종료일보다 이전이어야 합니다.");
+    }
+
 }
