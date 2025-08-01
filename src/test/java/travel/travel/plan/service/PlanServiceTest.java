@@ -1,9 +1,6 @@
 package travel.travel.plan.service;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -106,6 +103,19 @@ class PlanServiceTest {
         assertThat(result.getContent()).isEqualTo("Test Content");
         assertThat(result.getIsBookMarked()).isFalse();
         verify(planRepository).save(any(Plan.class));
+    }
+
+    @Test
+    @DisplayName("계획 생성 실패 - 존재하지 않는 목적지")
+    void createPlan_FailByInvalidDestination() {
+        // given
+        given(memberRepository.findById(1L)).willReturn(Optional.of(testMember));
+        given(destinationRepository.findByDestinationName("서울")).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> planService.createPlan(createReqDto, 1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("존재하지 않는 장소입니다.");
     }
 
 }
