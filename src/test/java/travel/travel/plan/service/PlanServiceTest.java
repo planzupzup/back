@@ -156,4 +156,19 @@ class PlanServiceTest {
         assertThat(result.getIsBookMarked()).isTrue();
     }
 
+    @Test
+    @DisplayName("계획 조회 실패 - 존재하지 않는 계획")
+    void getPlan_FailByNotFound() {
+        // given
+        given(planRepository.findById(1L)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> planService.getPlan(1L, 1L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("존재하지 않는 계획입니다.");
+    }
+
+
+
+
 }
