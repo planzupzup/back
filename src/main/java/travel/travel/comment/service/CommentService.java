@@ -89,7 +89,7 @@ public class CommentService {
         Comment parent = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         Page<CommentResDto> commentResDto = commentRepository.findByParent(parent, pageable)
                 .map(comment -> CommentResDto.of(comment, false));
 
@@ -107,7 +107,7 @@ public class CommentService {
         List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
         Set<Long> likedSet = new HashSet<>(likedIds);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
         Page<CommentResDto> commentResDto = commentRepository.findByParent(parent, pageable)
                 .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
 
