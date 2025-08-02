@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import travel.travel.comment.domain.Comment;
+import travel.travel.comment.domain.CommentSortType;
 import travel.travel.comment.dto.CommentCreateReqDto;
 import travel.travel.comment.dto.CommentResDto;
 import travel.travel.comment.dto.CommentUpdateReqDto;
@@ -55,18 +56,24 @@ public class CommentService {
         return CommentResDto.of(savedComment,isLiked);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size) {
+    public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type) {
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<CommentResDto> commentResDto = commentRepository.findByPlanAndParentIsNull(plan, pageable)
-                .map(comment -> CommentResDto.of(comment, false));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+
+        Page<CommentResDto> commentResDto = switch (type) {
+            case LATEST -> commentRepository.findByPlanAndParentIsNull(plan, pageable)
+                    .map(comment -> CommentResDto.of(comment, true));
+            case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParentIsNull(plan, pageable)
+                    .map(comment -> CommentResDto.of(comment, false));
+        };
 
         return PageApiResponse.of(commentResDto);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size, Long memberId) {
+    public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type, Long memberId) {
         Member member = getMember(memberId);
 
         Plan plan = planRepository.findById(planId)
@@ -75,28 +82,39 @@ public class CommentService {
         List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
         Set<Long> likedSet = new HashSet<>(likedIds);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<CommentResDto> commentResDto = commentRepository.findByPlanAndParentIsNull(plan, pageable)
-                .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+
+        Page<CommentResDto> commentResDto = switch (type) {
+            case LATEST -> commentRepository.findByPlanAndParentIsNull(plan, pageable)
+                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+            case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParentIsNull(plan, pageable)
+                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+        };
 
         return PageApiResponse.of(commentResDto);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size) {
+    public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type) {
 
         planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
         Comment parent = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<CommentResDto> commentResDto = commentRepository.findByParent(parent, pageable)
-                .map(comment -> CommentResDto.of(comment, false));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+
+        Page<CommentResDto> commentResDto = switch (type) {
+            case LATEST -> commentRepository.findByParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, false));
+            case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, false));
+        };
+
 
         return PageApiResponse.of(commentResDto);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, Long memberId) {
+    public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type, Long memberId) {
         Member member = getMember(memberId);
 
         planRepository.findById(planId)
@@ -107,9 +125,14 @@ public class CommentService {
         List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
         Set<Long> likedSet = new HashSet<>(likedIds);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<CommentResDto> commentResDto = commentRepository.findByParent(parent, pageable)
-                .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
+
+        Page<CommentResDto> commentResDto = switch (type) {
+            case LATEST -> commentRepository.findByParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+            case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+        };
 
         return PageApiResponse.of(commentResDto);
     }
