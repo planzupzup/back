@@ -27,4 +27,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     """)
     Page<Comment> findCommentsOrderByLikeCountAndParentIsNull(@Param("plan") Plan plan, Pageable pageable);
 
+    @Query("""
+    SELECT c FROM Comment c
+    LEFT JOIN c.like l
+    WHERE c.parent = :parent
+    GROUP BY c
+    ORDER BY COUNT(l) DESC
+    """)
+    Page<Comment> findCommentsOrderByLikeCountAndParent(@Param("parent") Comment parent, Pageable pageable);
+
 }

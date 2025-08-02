@@ -102,8 +102,14 @@ public class CommentService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
-        Page<CommentResDto> commentResDto = commentRepository.findByParent(parent, pageable)
-                .map(comment -> CommentResDto.of(comment, false));
+
+        Page<CommentResDto> commentResDto = switch (type) {
+            case LATEST -> commentRepository.findByParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, false));
+            case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, false));
+        };
+
 
         return PageApiResponse.of(commentResDto);
     }
@@ -120,8 +126,13 @@ public class CommentService {
         Set<Long> likedSet = new HashSet<>(likedIds);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
-        Page<CommentResDto> commentResDto = commentRepository.findByParent(parent, pageable)
-                .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+
+        Page<CommentResDto> commentResDto = switch (type) {
+            case LATEST -> commentRepository.findByParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+            case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParent(parent, pageable)
+                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+        };
 
         return PageApiResponse.of(commentResDto);
     }
