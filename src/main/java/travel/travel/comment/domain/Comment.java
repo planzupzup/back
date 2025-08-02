@@ -44,6 +44,7 @@ public class Comment extends BaseEntity {
     private List<Comment> children = new ArrayList<>();
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Like> like = new ArrayList<>();
 
     public void updateComment(String content) {

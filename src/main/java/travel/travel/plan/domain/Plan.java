@@ -44,12 +44,15 @@ public class Plan extends BaseEntity {
     @JoinColumn(name = "destination_id")
     private Destination destination;
 
+    @Builder.Default
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmark = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 

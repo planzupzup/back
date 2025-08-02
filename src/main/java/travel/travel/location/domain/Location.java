@@ -38,6 +38,7 @@ public class Location {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
+    @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "location_id")
     private List<Image> images = new ArrayList<>();
