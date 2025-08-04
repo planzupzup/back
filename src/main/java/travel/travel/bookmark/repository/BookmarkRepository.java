@@ -23,7 +23,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     @Query("""
     SELECT b.plan FROM Bookmark b
     WHERE b.member = :member
-    ORDER BY b.plan.createdTime ASC
+    ORDER BY b.plan.createdTime DESC
     """)
     Page<Plan> findBookmarkedPlansByMember(@Param("member") Member member, Pageable pageable);
 
@@ -34,7 +34,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     LEFT JOIN p.comments c
     WHERE bm.member = :member
     GROUP BY p
-    ORDER BY COUNT(c) ASC
+    ORDER BY COUNT(c) DESC
     """)
     Page<Plan> findBookmarkedPlansByMemberOrderByCommentCount(@Param("member") Member member, Pageable pageable);
 
@@ -45,7 +45,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     LEFT JOIN p.bookmark b
     WHERE bm.member = :member
     GROUP BY p
-    ORDER BY COUNT(b) ASC
+    ORDER BY COUNT(b) DESC
     """)
     Page<Plan> findBookmarkedPlansByMemberOrderByBookmarkCount(@Param("member") Member member, Pageable pageable);
 
