@@ -64,14 +64,23 @@ public class MyPageService {
         return PageApiResponse.of(plansDto);
     }
 
-    public PageApiResponse<PlanThumbResDto> getMyPlans(int page, int size, Long memberId) {
+    public PageApiResponse<PlanThumbResDto> getMyPlans(VisibilityType visibility, int page, int size, Long memberId) {
         Member member = getMember(memberId);
         List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
         Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<PlanThumbResDto> planDto = planRepository.findByMember(member, pageable)
+        planRepository.findByMember(member, pageable)
                 .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+
+        Page<PlanThumbResDto> planDto = switch (visibility) {
+            case PUBLIC -> planRepository.findByIsPublicAndMember(true, member, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+            case PRIVATE -> planRepository.findByIsPublicAndMember(false, member, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+            case ALL -> planRepository.findByMember(member, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+        };
 
         return PageApiResponse.of(planDto);
     }

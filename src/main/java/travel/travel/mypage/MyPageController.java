@@ -47,11 +47,12 @@ public class MyPageController {
 
     @GetMapping("/plans")
     public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getMyPlans(
+            @RequestParam(defaultValue = "ALL") VisibilityType visibility,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Long memberId = authService.getAuthenticatedUserId();
-        PageApiResponse<PlanThumbResDto> dto = myPageService.getMyPlans(page, size, memberId);
+        PageApiResponse<PlanThumbResDto> dto = myPageService.getMyPlans(visibility, page, size, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "내가 쓴 글 목록 조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
