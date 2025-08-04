@@ -22,4 +22,6 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     Page<Plan> findAllByIsPublicTrue(Pageable pageable);
 
     Page<Plan> findByMember(Member member, Pageable pageable);
+
+    Page<Plan> findByIsPublicAndMember(boolean b, Member member, Pageable pageable);
 }

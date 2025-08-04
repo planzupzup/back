@@ -24,6 +24,9 @@ public class PlanThumbResDto {
         return isBookMarked;
     }
 
+    private Integer bookMarkCount;
+    private Integer commentCount;
+
     public static PlanThumbResDto of(Plan plan, boolean bookMarked) {
         return PlanThumbResDto.builder()
                 .planId(plan.getPlanId())
@@ -32,6 +35,8 @@ public class PlanThumbResDto {
                 .title(plan.getTitle())
                 .destinationName(plan.getDestination().getDestinationName())
                 .isBookMarked(bookMarked)
+                .bookMarkCount(plan.getBookmark() == null ? 0 : plan.getBookmark().size())
+                .commentCount(plan.getComments() == null ? 0 : plan.getComments().size())
                 .build();
     }
 

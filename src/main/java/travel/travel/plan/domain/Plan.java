@@ -24,7 +24,7 @@ public class Plan extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long planId;
 
-    @Column(nullable = false)
+    @Column(name = "is_public", nullable = false)
     private boolean isPublic;
 
     @Column(length = 100)
