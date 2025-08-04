@@ -27,5 +27,28 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     """)
     Page<Plan> findBookmarkedPlansByMember(@Param("member") Member member, Pageable pageable);
 
+    @Query("""
+    SELECT p
+    FROM Bookmark bm
+    JOIN bm.plan p
+    LEFT JOIN p.comments c
+    WHERE bm.member = :member
+    GROUP BY p
+    ORDER BY COUNT(c) ASC
+    """)
+    Page<Plan> findBookmarkedPlansByMemberOrderByCommentCount(@Param("member") Member member, Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM Bookmark bm
+    JOIN bm.plan p
+    LEFT JOIN p.bookmark b
+    WHERE bm.member = :member
+    GROUP BY p
+    ORDER BY COUNT(b) ASC
+    """)
+    Page<Plan> findBookmarkedPlansByMemberOrderByBookmarkCount(@Param("member") Member member, Pageable pageable);
+
+
     void deleteByMember(Member member);
 }

@@ -16,6 +16,7 @@ import travel.travel.image.domain.Image;
 import travel.travel.image.service.ImageService;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
+import travel.travel.plan.domain.PlanSortType;
 import travel.travel.plan.dto.PlanThumbResDto;
 import travel.travel.plan.repository.PlanRepository;
 
@@ -54,12 +55,19 @@ public class MyPageService {
         return MemberResDto.of(member);
     }
 
-    public PageApiResponse<PlanThumbResDto> getBookmarkedPlans(int page, int size, Long memberId) {
+    public PageApiResponse<PlanThumbResDto> getBookmarkedPlans(PlanSortType type, int page, int size, Long memberId) {
         Member member = getMember(memberId);
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<PlanThumbResDto> plansDto = bookmarkRepository.findBookmarkedPlansByMember(member, pageable)
+
+        Page<PlanThumbResDto> plansDto = switch (type) {
+            case COMMENT -> bookmarkRepository.findBookmarkedPlansByMemberOrderByCommentCount(member, pageable)
                 .map(plan -> PlanThumbResDto.of(plan, true));
+            case BOOKMARK -> bookmarkRepository.findBookmarkedPlansByMemberOrderByBookmarkCount(member, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, true));
+            case LATEST -> bookmarkRepository.findBookmarkedPlansByMember(member,pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, true));
+        };
 
         return PageApiResponse.of(plansDto);
     }
