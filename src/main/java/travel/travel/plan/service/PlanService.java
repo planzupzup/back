@@ -17,6 +17,7 @@ import travel.travel.location.service.LocationService;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Destination;
+import travel.travel.plan.domain.PlanSortType;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.dto.PlanResDto;
@@ -133,23 +134,39 @@ public class PlanService{
         return PageApiResponse.of(planDto);
     }
 
-    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size) {
+    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, PlanSortType type, int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<PlanThumbResDto> planDto = planRepository.searchByKeyword(keyword, pageable)
-                .map(plan -> PlanThumbResDto.of(plan, false));
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<PlanThumbResDto> planDto = switch (type) {
+            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCount(keyword, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, false));
+            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCount(keyword, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, false));
+            case LATEST -> planRepository.searchByKeyword(keyword, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, false));
+        };
+
 
         return PageApiResponse.of(planDto);
     }
 
-    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, int page, int size, Long memberId) {
+    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, PlanSortType type, int page, int size, Long memberId) {
         Member member = getMember(memberId);
         List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
         Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<PlanThumbResDto> planDto = planRepository.searchByKeyword(keyword, pageable)
-                .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<PlanThumbResDto> planDto = switch (type) {
+            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCount(keyword, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCount(keyword, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+            case LATEST -> planRepository.searchByKeyword(keyword, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+        };
+
 
         return PageApiResponse.of(planDto);
     }
