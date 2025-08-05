@@ -19,6 +19,32 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     """)
     Page<Plan> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    @Query("""
+    SELECT p FROM Plan p
+    LEFT JOIN p.destination d
+    LEFT JOIN p.bookmark b
+    WHERE (p.title LIKE %:keyword%
+        OR p.content LIKE %:keyword%
+        OR d.destinationName LIKE %:keyword%)
+    GROUP BY p
+    ORDER BY COUNT(b) DESC
+    """)
+    Page<Plan> searchByKeywordAndOrderByBookmarkCount(@Param("keyword") String keyword,  Pageable pageable);
+
+    @Query("""
+        SELECT p FROM Plan p
+        LEFT JOIN p.destination d
+        LEFT JOIN p.comments c
+        WHERE (p.title LIKE %:keyword%
+            OR p.content LIKE %:keyword%
+            OR d.destinationName LIKE %:keyword%)
+        GROUP BY p
+        ORDER BY COUNT(c) DESC
+    """)
+    Page<Plan> searchByKeywordAndOrderByCommentCount(@Param("keyword") String keyword,  Pageable pageable);
+
+
+
     Page<Plan> findAllByIsPublicTrue(Pageable pageable);
 
     Page<Plan> findByMember(Member member, Pageable pageable);

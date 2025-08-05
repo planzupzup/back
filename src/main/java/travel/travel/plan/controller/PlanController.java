@@ -14,6 +14,7 @@ import travel.travel.common.dto.CommonResDto;
 import travel.travel.common.dto.PageApiResponse;
 import travel.travel.common.service.AuthService;
 import travel.travel.location.dto.LocationOrderUpdateReqDto;
+import travel.travel.plan.domain.PlanSortType;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
 import travel.travel.plan.dto.PlanThumbResDto;
@@ -85,15 +86,16 @@ public class PlanController {
     }
 
 
-    @GetMapping("/search/{keyword}")
+    @GetMapping("/search/{keyword}/{type}")
     public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getAllPlanByKeyword(
             @PathVariable String keyword,
+            @PathVariable PlanSortType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         PageApiResponse<PlanThumbResDto> dto = authService.isAuthenticatedUser()
-                ? planService.getAllPlanByKeyword(keyword, page, size, authService.getAuthenticatedUserId())
-                : planService.getAllPlanByKeyword(keyword, page, size);
+                ? planService.getAllPlanByKeyword(keyword, type, page, size, authService.getAuthenticatedUserId())
+                : planService.getAllPlanByKeyword(keyword, type, page, size);
 
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
