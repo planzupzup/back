@@ -36,7 +36,7 @@ public class PlanThumbResDto {
                 .nickName(plan.getMember().getNickName())
                 .profileImage(plan.getMember().getImageUrl())
                 .title(plan.getTitle())
-                .days(ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate()))
+                .days(ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate())+1)
                 .destinationName(plan.getDestination().getDestinationName())
                 .isBookMarked(bookMarked)
                 .bookMarkCount(plan.getBookmark() == null ? 0 : plan.getBookmark().size())
