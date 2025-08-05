@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import travel.travel.plan.domain.Plan;
 
+import java.time.temporal.ChronoUnit;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,6 +18,7 @@ public class PlanThumbResDto {
     private String nickName;
     private String profileImage;
     private String title;
+    private Long days;
     private String destinationName;
     private boolean isBookMarked;
 
@@ -33,6 +36,7 @@ public class PlanThumbResDto {
                 .nickName(plan.getMember().getNickName())
                 .profileImage(plan.getMember().getImageUrl())
                 .title(plan.getTitle())
+                .days(ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate()))
                 .destinationName(plan.getDestination().getDestinationName())
                 .isBookMarked(bookMarked)
                 .bookMarkCount(plan.getBookmark() == null ? 0 : plan.getBookmark().size())
