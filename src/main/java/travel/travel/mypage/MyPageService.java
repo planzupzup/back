@@ -61,11 +61,11 @@ public class MyPageService {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<PlanThumbResDto> plansDto = switch (type) {
-            case COMMENT -> bookmarkRepository.findBookmarkedPlansByMemberOrderByCommentCount(member, pageable)
+            case COMMENT -> bookmarkRepository.findBookmarkedPlansByMemberOrderByCommentCountAndIsPublicTrue(member, pageable)
                 .map(plan -> PlanThumbResDto.of(plan, true));
-            case BOOKMARK -> bookmarkRepository.findBookmarkedPlansByMemberOrderByBookmarkCount(member, pageable)
+            case BOOKMARK -> bookmarkRepository.findBookmarkedPlansByMemberOrderByBookmarkCountAndIsPublicTrue(member, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, true));
-            case LATEST -> bookmarkRepository.findBookmarkedPlansByMember(member,pageable)
+            case LATEST -> bookmarkRepository.findBookmarkedPlansByMemberAndIsPublicTrue(member,pageable)
                     .map(plan -> PlanThumbResDto.of(plan, true));
         };
 

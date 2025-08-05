@@ -139,11 +139,11 @@ public class PlanService{
         Pageable pageable = PageRequest.of(page, size);
 
         Page<PlanThumbResDto> planDto = switch (type) {
-            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCount(keyword, pageable)
+            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCountAndIsPublicTrue(keyword, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, false));
-            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCount(keyword, pageable)
+            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCountAndIsPublicTrue(keyword, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, false));
-            case LATEST -> planRepository.searchByKeyword(keyword, pageable)
+            case LATEST -> planRepository.searchByKeywordAndIsPublicTrue(keyword, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, false));
         };
 
@@ -159,11 +159,11 @@ public class PlanService{
         Pageable pageable = PageRequest.of(page, size);
 
         Page<PlanThumbResDto> planDto = switch (type) {
-            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCount(keyword, pageable)
+            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCountAndIsPublicTrue(keyword, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
-            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCount(keyword, pageable)
+            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCountAndIsPublicTrue(keyword, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
-            case LATEST -> planRepository.searchByKeyword(keyword, pageable)
+            case LATEST -> planRepository.searchByKeywordAndIsPublicTrue(keyword, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
         };
 

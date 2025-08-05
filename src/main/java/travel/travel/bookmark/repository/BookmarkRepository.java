@@ -23,9 +23,10 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     @Query("""
     SELECT b.plan FROM Bookmark b
     WHERE b.member = :member
+    AND b.plan.isPublic = true
     ORDER BY b.plan.createdTime DESC
     """)
-    Page<Plan> findBookmarkedPlansByMember(@Param("member") Member member, Pageable pageable);
+    Page<Plan> findBookmarkedPlansByMemberAndIsPublicTrue(@Param("member") Member member, Pageable pageable);
 
     @Query("""
     SELECT p
@@ -33,10 +34,11 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     JOIN bm.plan p
     LEFT JOIN p.comments c
     WHERE bm.member = :member
+    AND bm.plan.isPublic = true
     GROUP BY p
     ORDER BY COUNT(c) DESC
     """)
-    Page<Plan> findBookmarkedPlansByMemberOrderByCommentCount(@Param("member") Member member, Pageable pageable);
+    Page<Plan> findBookmarkedPlansByMemberOrderByCommentCountAndIsPublicTrue(@Param("member") Member member, Pageable pageable);
 
     @Query("""
     SELECT p
@@ -44,10 +46,11 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     JOIN bm.plan p
     LEFT JOIN p.bookmark b
     WHERE bm.member = :member
+    AND p.isPublic = true
     GROUP BY p
     ORDER BY COUNT(b) DESC
     """)
-    Page<Plan> findBookmarkedPlansByMemberOrderByBookmarkCount(@Param("member") Member member, Pageable pageable);
+    Page<Plan> findBookmarkedPlansByMemberOrderByBookmarkCountAndIsPublicTrue(@Param("member") Member member, Pageable pageable);
 
 
     void deleteByMember(Member member);
