@@ -15,6 +15,7 @@ import travel.travel.common.handler.OAuth2AuthenticationSuccessHandler;
 import travel.travel.common.service.CustomOAuth2UserService;
 import travel.travel.common.service.JwtAuthenticationFilter;
 import travel.travel.common.service.JwtTokenProvider;
+import travel.travel.member.repository.MemberRepository;
 
 @Slf4j
 @Configuration
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CorsConfigurationSource corsConfigurationSource;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final MemberRepository memberRepository;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
@@ -67,6 +69,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider);
+        return new JwtAuthenticationFilter(jwtTokenProvider, memberRepository);
     }
 }
