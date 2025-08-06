@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,7 +62,6 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
-                .domain("planzupzup.co.kr")
                 .maxAge(60 * 30)
                 .build();
     }
@@ -71,7 +72,6 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
-                .domain("planzupzup.co.kr")
                 .maxAge(60 * 60 * 24 * 7)
                 .build();
     }
@@ -87,6 +87,35 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
+    public String extractAccessTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+
+        for (Cookie cookie : request.getCookies()) {
+            if ("accessToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    public String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+
+        for (Cookie cookie : request.getCookies()) {
+            if ("refreshToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
+    }
+
 
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
@@ -114,4 +143,20 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
+
+    public Long getUserIdFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return Long.parseLong(claims.getSubject());
+
+        } catch (ExpiredJwtException e) {
+            return Long.parseLong(e.getClaims().getSubject());
+        }
+    }
+
 }
