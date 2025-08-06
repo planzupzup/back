@@ -60,6 +60,7 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
+                .domain("planzupzup.co.kr")
                 .maxAge(60 * 30)
                 .build();
     }
@@ -70,6 +71,7 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
+                .domain("planzupzup.co.kr")
                 .maxAge(60 * 60 * 24 * 7)
                 .build();
     }
