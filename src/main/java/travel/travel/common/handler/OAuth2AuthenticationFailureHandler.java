@@ -18,7 +18,7 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         log.info("OAuth2AuthenticationFailureHandler onAuthenticationFailure: {}", exception.getMessage());
 
-        String targetUrl = UriComponentsBuilder.fromUriString("https://localhost:3000/auth/failure")
+        String targetUrl = UriComponentsBuilder.fromUriString("https://planzupzup.co.kr/auth/failure")
                 .queryParam("status", "fail")
                 .build().toUriString();
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
