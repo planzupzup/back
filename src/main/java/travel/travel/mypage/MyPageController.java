@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import travel.travel.comment.domain.CommentSortType;
 import travel.travel.common.dto.CommonResDto;
 import travel.travel.common.dto.PageApiResponse;
 import travel.travel.common.service.AuthService;
@@ -23,10 +22,10 @@ public class MyPageController {
 
     @PutMapping
     public ResponseEntity<CommonResDto<MemberResDto>> updateMyInfo(
-            @Valid @RequestPart NickNameReqDto nickNameReqDto,
+            @Valid @RequestPart MemberReqDto memberReqDto,
             @RequestPart(required = false) MultipartFile file) {
         Long memberId = authService.getAuthenticatedUserId();
-        MemberResDto dto = myPageService.updateMyInfo(nickNameReqDto, file, memberId);
+        MemberResDto dto = myPageService.updateMyInfo(memberReqDto, file, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "내 정보 변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 

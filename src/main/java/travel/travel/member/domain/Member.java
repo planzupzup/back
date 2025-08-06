@@ -25,6 +25,8 @@ public class Member extends BaseEntity {
 
     private String refreshToken;
 
+    private String description;
+
     @Column(length = 1000)
     private String imageUrl;
 
@@ -43,8 +45,9 @@ public class Member extends BaseEntity {
         this.refreshToken = refreshToken;
     }
 
-    public void updateNickName(String nickName) {
+    public void updateInfo(String nickName, String description) {
         this.nickName = nickName;
+        this.description = description;
     }
 
     public void updateImage(String imageUrl) {

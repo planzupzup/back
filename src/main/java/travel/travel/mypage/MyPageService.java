@@ -35,9 +35,9 @@ public class MyPageService {
     private final ImageService imageService;
     private final CommentRepository commentRepository;
 
-    public MemberResDto updateMyInfo(NickNameReqDto nickNameReqDto, MultipartFile file, Long memberId) {
+    public MemberResDto updateMyInfo(MemberReqDto memberReqDto, MultipartFile file, Long memberId) {
         Member member = getMember(memberId);
-        member.updateNickName(nickNameReqDto.getNickName());
+        member.updateInfo(memberReqDto.getNickName(), memberReqDto.getDescription());
 
         if (member.getImageUrl() != null) {
             imageService.deleteImages(List.of(Image.builder().imageUrl(member.getImageUrl()).build()));
