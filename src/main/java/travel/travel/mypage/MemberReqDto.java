@@ -1,8 +1,10 @@
 package travel.travel.mypage;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
 public class MemberReqDto {
 

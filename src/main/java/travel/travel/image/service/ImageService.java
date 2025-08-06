@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -80,7 +81,13 @@ public class ImageService {
 
         List<String> keys = images.stream()
                 .map(Image::getS3Key)
+                .filter(StringUtils::hasText)
                 .toList();
+
+        if (keys.isEmpty()) {
+            log.warn("삭제할 S3 키가 없습니다.");
+            return;
+        }
 
         List<ObjectIdentifier> identifiers = keys.stream()
                 .map(key -> ObjectIdentifier.builder().key(key).build())

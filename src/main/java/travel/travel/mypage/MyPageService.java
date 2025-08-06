@@ -3,16 +3,19 @@ package travel.travel.mypage;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.comment.repository.CommentRepository;
 import travel.travel.common.dto.PageApiResponse;
 import travel.travel.image.domain.Image;
+import travel.travel.image.repository.ImageRepository;
 import travel.travel.image.service.ImageService;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
@@ -24,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -34,17 +38,28 @@ public class MyPageService {
     private final BookmarkRepository bookmarkRepository;
     private final ImageService imageService;
     private final CommentRepository commentRepository;
+    private final ImageRepository imageRepository;
 
     public MemberResDto updateMyInfo(MemberReqDto memberReqDto, MultipartFile file, Long memberId) {
         Member member = getMember(memberId);
         member.updateInfo(memberReqDto.getNickName(), memberReqDto.getDescription());
 
         if (member.getImageUrl() != null) {
-            imageService.deleteImages(List.of(Image.builder().imageUrl(member.getImageUrl()).build()));
+            Image image = imageRepository.findByImageUrl(member.getImageUrl())
+                    .orElseThrow(() -> new EntityNotFoundException("이미지 없습니다."));
+
+            imageService.deleteImages(List.of(image));
+            member.updateImage(null);
         }
         if (file != null && !file.isEmpty()) {
-            String newImageUrl = imageService.uploadFiles(List.of(file)).getFirst().getImageUrl();
-            member.updateImage(newImageUrl);
+            try {
+                String newImageUrl = imageService.uploadFiles(List.of(file)).getFirst().getImageUrl();
+                member.updateImage(newImageUrl);
+                log.info("이미지 업데이트 성공 : {}", newImageUrl);
+            } catch (S3Exception e) {
+                log.error("S3 이미지 업로드 실패: {}", e.getMessage(), e);
+                throw new RuntimeException("프로필 이미지 업로드 중 오류가 발생했습니다.");
+            }
         }
 
         return MemberResDto.of(member);
