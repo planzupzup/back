@@ -10,14 +10,12 @@ public class AuthService {
 
     public Long getAuthenticatedUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return 1L;
-        // if(!isAuthenticatedUser()) throw new SecurityException("존재하지 않는 회원입니다.");
-        // return Long.parseLong(authentication.getPrincipal().toString());
+        if(!isAuthenticatedUser()) throw new SecurityException("존재하지 않는 회원입니다.");
+        return Long.parseLong(authentication.getPrincipal().toString());
     }
 
     public boolean isAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return true;
-        // return authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String && authentication.getPrincipal().equals("anonymousUser"));
+        return authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String && authentication.getPrincipal().equals("anonymousUser"));
     }
 }
