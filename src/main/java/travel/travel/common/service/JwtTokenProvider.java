@@ -1,9 +1,11 @@
 package travel.travel.common.service;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +20,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class JwtTokenProvider {
 
@@ -71,7 +72,7 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
-                .maxAge(60 * 60 * 24 * 30) // 30일
+                .maxAge(60 * 60 * 24 * 7)
                 .build();
     }
 
@@ -81,19 +82,10 @@ public class JwtTokenProvider {
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-
-            return true; // 서명 OK, 만료 안됨
-        } catch (SecurityException | MalformedJwtException e) {
-            log.warn("잘못된 JWT 서명입니다.");
+            return true;
         } catch (ExpiredJwtException e) {
-            log.warn("만료된 JWT 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            log.warn("지원되지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            log.warn("JWT claims 문자열이 비어 있습니다.");
+            return false;
         }
-
-        return false;
     }
 
     public String extractAccessTokenFromCookie(HttpServletRequest request) {
@@ -124,6 +116,7 @@ public class JwtTokenProvider {
         return null;
     }
 
+
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
         String memberId = claims.getSubject();
@@ -138,21 +131,6 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(memberId, null, authorities);
     }
 
-    public Long getUserIdFromToken(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            return Long.parseLong(claims.getSubject());
-
-        } catch (ExpiredJwtException e) {
-            // 만료됐더라도 사용자 ID는 꺼낼 수 있음
-            return Long.parseLong(e.getClaims().getSubject());
-        }
-    }
 
     private Claims parseClaims(String token) {
         try {
@@ -165,4 +143,20 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
+
+    public Long getUserIdFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return Long.parseLong(claims.getSubject());
+
+        } catch (ExpiredJwtException e) {
+            return Long.parseLong(e.getClaims().getSubject());
+        }
+    }
+
 }

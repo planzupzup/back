@@ -51,7 +51,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         String redirectUrl = UriComponentsBuilder
-                .fromUriString("https://localhost:3000")
+                .fromUriString("https://planzupzup.co.kr")
                 .build()
                 .toUriString();
 
