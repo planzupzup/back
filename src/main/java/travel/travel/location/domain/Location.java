@@ -43,34 +43,4 @@ public class Location {
     @JoinColumn(name = "location_id")
     private List<Image> images = new ArrayList<>();
 
-    public void updateInfo(
-            String locationName,
-            double latitude,
-            double longitude,
-            String description,
-            String googleImageUrl,
-            double rating,
-            String types,
-            String placeId,
-            List<Image> images
-    ) {
-        this.locationName = locationName;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.description = description;
-        this.rating = rating;
-        this.googleImageUrl = googleImageUrl;
-        this.types = types;
-        this.placeId = placeId;
-        this.images.clear();
-        this.images.addAll(images);
-    }
-
-    public void updateScheduleOrder(int scheduleOrder) {
-        this.scheduleOrder = scheduleOrder;
-    }
-
-    public void updateDay(int day) {
-        this.day = day;
-    }
 }
