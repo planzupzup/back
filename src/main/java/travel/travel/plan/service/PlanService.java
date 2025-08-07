@@ -9,11 +9,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.common.dto.PageApiResponse;
-import travel.travel.location.domain.Location;
-import travel.travel.location.dto.LocationOrderUpdateReqDto;
 import travel.travel.location.dto.LocationResDto;
-import travel.travel.location.repository.LocationRepository;
-import travel.travel.location.service.LocationService;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Destination;
@@ -28,7 +24,6 @@ import travel.travel.plan.repository.PlanRepository;
 
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,8 +33,6 @@ public class PlanService{
     private final PlanRepository planRepository;
     private final DestinationRepository destinationRepository;
     private final MemberRepository memberRepository;
-    private final LocationRepository locationRepository;
-    private final LocationService locationService;
     private final BookmarkRepository bookmarkRepository;
 
     public PlanResDto createPlan(PlanCreateReqDto planCreateReqDto,Long memberId) {
@@ -209,47 +202,6 @@ public class PlanService{
                 .toList();
         boolean bookmark = isBookmarked(member, findPlan);
         return PlanResDto.of(findPlan, bookmark, filteredLocations);
-    }
-
-    public PlanResDto updateScheduleOrder(Long planId, List<LocationOrderUpdateReqDto> locationOrderUpdateReqDto, Long memberId) {
-        Member member = getMember(memberId);
-
-        Plan existingPlan =  planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-
-        if (!existingPlan.getMember().getId().equals(member.getId())) {
-            throw new SecurityException("수정 권한이 없습니다.");
-        }
-
-        Map<Integer, List<LocationOrderUpdateReqDto>> groupedByDay = locationOrderUpdateReqDto.stream()
-                .collect(Collectors.groupingBy(LocationOrderUpdateReqDto::getDay));
-
-        for (Map.Entry<Integer, List<LocationOrderUpdateReqDto>> entry : groupedByDay.entrySet()) {
-            Integer day = entry.getKey();
-
-            for (LocationOrderUpdateReqDto dto : entry.getValue()) {
-                Location location = locationRepository.findById(dto.getLocationId())
-                        .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다."));
-
-                if (!location.getPlan().getPlanId().equals(planId)) {
-                    throw new IllegalArgumentException("요청 정보와 일치하지 않는 지역입니다.");
-                }
-
-                location.updateScheduleOrder(dto.getScheduleOrder());
-                location.updateDay(dto.getDay());
-            }
-
-            List<Location> reordered = locationRepository.findByPlanAndDayOrderByScheduleOrderAsc(existingPlan, day);
-            locationService.checkForDuplicateScheduleOrder(reordered);
-            locationService.autoScheduleOrder(reordered);
-        }
-
-        List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
-                .map(LocationResDto::of)
-                .toList();
-
-        boolean bookmark = isBookmarked(member, existingPlan);
-        return PlanResDto.of(existingPlan, bookmark, filteredLocations);
     }
 
     public PlanResDto deletePlan(Long planId, Long memberId) {

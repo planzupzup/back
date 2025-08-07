@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import travel.travel.common.dto.CommonResDto;
 import travel.travel.common.dto.PageApiResponse;
 import travel.travel.common.service.AuthService;
-import travel.travel.location.dto.LocationOrderUpdateReqDto;
 import travel.travel.plan.domain.PlanSortType;
 import travel.travel.plan.dto.PlanCreateReqDto;
 import travel.travel.plan.dto.PlanResDto;
@@ -22,7 +21,6 @@ import travel.travel.plan.dto.PlanUpdateReqDto;
 import travel.travel.plan.service.PlanService;
 
 import java.time.Duration;
-import java.util.List;
 
 
 @RestController
@@ -98,15 +96,6 @@ public class PlanController {
                 : planService.getAllPlanByKeyword(keyword, type, page, size);
 
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
-    }
-
-    @PutMapping("/{planId}/order")
-    public ResponseEntity<CommonResDto<PlanResDto>> updateScheduleOrder(
-            @PathVariable Long planId,
-            @RequestBody List<LocationOrderUpdateReqDto> locationOrderUpdateReqDtos) {
-        Long memberId = authService.getAuthenticatedUserId();
-        PlanResDto dto = planService.updateScheduleOrder(planId, locationOrderUpdateReqDtos, memberId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "지역날짜, 순서 변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @PutMapping("/{planId}")
