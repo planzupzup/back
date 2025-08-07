@@ -193,6 +193,24 @@ public class PlanService{
         return PlanResDto.of(savedPlan, bookmark, filteredLocations);
     }
 
+    public PlanResDto updatePublicStatus(Long planId, Long memberId) {
+        Member member = getMember(memberId);
+        Plan findPlan = planRepository.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+
+        if (!findPlan.getMember().getId().equals(memberId)) {
+            throw new SecurityException("수정 권한이 없습니다.");
+        }
+
+        findPlan.updatePublic(findPlan.isPublic());
+
+        List<LocationResDto> filteredLocations = findPlan.getLocations().stream()
+                .map(LocationResDto::of)
+                .toList();
+        boolean bookmark = isBookmarked(member, findPlan);
+        return PlanResDto.of(findPlan, bookmark, filteredLocations);
+    }
+
     public PlanResDto updateScheduleOrder(Long planId, List<LocationOrderUpdateReqDto> locationOrderUpdateReqDto, Long memberId) {
         Member member = getMember(memberId);
 

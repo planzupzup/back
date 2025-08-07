@@ -63,4 +63,8 @@ public class Plan extends BaseEntity {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public void updatePublic(boolean isPublic) {
+        this.isPublic = !isPublic;
+    }
 }

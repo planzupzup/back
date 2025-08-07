@@ -116,6 +116,13 @@ public class PlanController {
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
+    @PutMapping("/{planId}/public")
+    public ResponseEntity<CommonResDto<PlanResDto>> updatePlanPublic(@PathVariable Long planId) {
+        Long memberId = authService.getAuthenticatedUserId();
+        PlanResDto dto = planService.updatePublicStatus(planId, memberId);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획공개/비공개 수정이 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{planId}")
     public ResponseEntity<CommonResDto<PlanResDto>> deletePlan(@PathVariable Long planId) {
         Long memberId = authService.getAuthenticatedUserId();
