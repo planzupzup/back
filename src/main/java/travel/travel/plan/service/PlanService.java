@@ -13,12 +13,10 @@ import travel.travel.location.dto.LocationResDto;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Destination;
+import travel.travel.plan.domain.PlanOwnership;
 import travel.travel.plan.domain.PlanSortType;
-import travel.travel.plan.dto.PlanCreateReqDto;
+import travel.travel.plan.dto.*;
 import travel.travel.plan.domain.Plan;
-import travel.travel.plan.dto.PlanResDto;
-import travel.travel.plan.dto.PlanThumbResDto;
-import travel.travel.plan.dto.PlanUpdateReqDto;
 import travel.travel.plan.repository.DestinationRepository;
 import travel.travel.plan.repository.PlanRepository;
 
@@ -48,19 +46,10 @@ public class PlanService{
                 PlanCreateReqDto.toEntity(planCreateReqDto, member, destination)
         );
 
-        boolean bookmarked = isBookmarked(member, savedPlan);
-        return PlanResDto.of(savedPlan, bookmarked, null);
+        return PlanResDto.of(savedPlan, PlanOwnership.MINE, savedPlan.isPublic(), null);
     }
 
     public PlanResDto getPlanByDay(Long planId, Integer day) {
-        return buildPlanResDto(planId, day, null);
-    }
-
-    public PlanResDto getPlanByDay(Long planId, Integer day, Long memberId) {
-        return buildPlanResDto(planId, day, memberId);
-    }
-
-    private PlanResDto buildPlanResDto(Long planId, Integer day, Long memberId) {
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -69,26 +58,27 @@ public class PlanService{
                 .map(LocationResDto::of)
                 .toList();
 
-        boolean bookmarked = false;
-        if (memberId != null) {
-            Member member = getMember(memberId);
-            bookmarked = isBookmarked(member, existingPlan);
-        }
+        return PlanResDto.of(existingPlan, PlanOwnership.OTHERS, false, filteredLocations);
+    }
 
-        return PlanResDto.of(existingPlan, bookmarked, filteredLocations);
+    public PlanResDto getPlanByDay(Long planId, Integer day, Long memberId) {
+        Member member = getMember(memberId);
+        Plan existingPlan = planRepository.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+
+        List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
+                .filter(location -> location.getDay().equals(day))
+                .map(LocationResDto::of)
+                .toList();
+
+        if (member.equals(existingPlan.getMember())) {
+            return PlanResDto.of(existingPlan, PlanOwnership.MINE, existingPlan.isPublic(), null);
+        }
+        boolean bookmarked = isBookmarked(member, existingPlan);
+        return PlanResDto.of(existingPlan,  PlanOwnership.OTHERS, bookmarked, filteredLocations);
     }
 
     public PlanResDto getPlan(Long planId) {
-        return buildPlanResDto(planId, null);
-    }
-
-    public PlanResDto getPlan(Long planId, Long memberId) {
-        return buildPlanResDto(planId, memberId);
-    }
-
-
-    public PlanResDto buildPlanResDto(Long planId, Long memberId) {
-
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
@@ -96,13 +86,23 @@ public class PlanService{
                 .map(LocationResDto::of)
                 .toList();
 
-        boolean bookmarked = false;
-        if (memberId != null) {
-            Member member = getMember(memberId);
-            bookmarked = isBookmarked(member, existingPlan);
-        }
+        return PlanResDto.of(existingPlan, PlanOwnership.OTHERS, false, filteredLocations);
+    }
 
-        return PlanResDto.of(existingPlan, bookmarked, filteredLocations);
+    public PlanResDto getPlan(Long planId, Long memberId) {
+        Member member = getMember(memberId);
+        Plan existingPlan = planRepository.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+
+        List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
+                .map(LocationResDto::of)
+                .toList();
+
+        if (member.equals(existingPlan.getMember())) {
+            return PlanResDto.of(existingPlan, PlanOwnership.MINE, existingPlan.isPublic(), filteredLocations);
+        }
+        boolean bookmarked = isBookmarked(member, existingPlan);
+        return PlanResDto.of(existingPlan, PlanOwnership.OTHERS, bookmarked, filteredLocations);
     }
 
     public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
@@ -169,7 +169,7 @@ public class PlanService{
 
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        if (!existingPlan.getMember().getId().equals(member.getId())) {
+        if (!existingPlan.getMember().equals(member)) {
             throw new SecurityException("수정 권한이 없습니다.");
         }
 
@@ -182,8 +182,7 @@ public class PlanService{
                 .toList();
 
         Plan savedPlan = planRepository.save(existingPlan);
-        boolean bookmark = isBookmarked(member, existingPlan);
-        return PlanResDto.of(savedPlan, bookmark, filteredLocations);
+        return PlanResDto.of(savedPlan, PlanOwnership.MINE, savedPlan.isPublic(), filteredLocations);
     }
 
     public PlanResDto updatePublicStatus(Long planId, Long memberId) {
@@ -191,7 +190,7 @@ public class PlanService{
         Plan findPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
-        if (!findPlan.getMember().getId().equals(memberId)) {
+        if (!findPlan.getMember().equals(member)) {
             throw new SecurityException("수정 권한이 없습니다.");
         }
 
@@ -200,8 +199,8 @@ public class PlanService{
         List<LocationResDto> filteredLocations = findPlan.getLocations().stream()
                 .map(LocationResDto::of)
                 .toList();
-        boolean bookmark = isBookmarked(member, findPlan);
-        return PlanResDto.of(findPlan, bookmark, filteredLocations);
+
+        return PlanResDto.of(findPlan, PlanOwnership.MINE, findPlan.isPublic(), filteredLocations);
     }
 
     public PlanResDto deletePlan(Long planId, Long memberId) {
@@ -210,12 +209,12 @@ public class PlanService{
         Plan existingPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
 
-        if (!existingPlan.getMember().getId().equals(member.getId())) {
+        if (!existingPlan.getMember().equals(member)) {
             throw new SecurityException("삭제 권한이 없습니다.");
         }
 
         planRepository.delete(existingPlan);
-        return PlanResDto.of(existingPlan, false, null);
+        return PlanResDto.of(existingPlan, PlanOwnership.MINE, false, null);
     }
 
 
