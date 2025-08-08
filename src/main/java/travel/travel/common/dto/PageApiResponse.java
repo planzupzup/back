@@ -24,7 +24,7 @@ public class PageApiResponse<T> {
                 .content(page.getContent())
                 .page(page.getNumber())
                 .size(page.getSize())
-                .totalPages(page.getTotalPages())
+                .totalPages(page.getTotalPages()+1)
                 .totalElements(page.getTotalElements())
                 .first(page.isFirst())
                 .last(page.isLast())
