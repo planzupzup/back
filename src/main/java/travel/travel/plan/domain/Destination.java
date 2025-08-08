@@ -17,7 +17,20 @@ public class Destination {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long destinationId;
 
+    @Column(nullable = false)
+    private String country;
+
     @Column(name = "destination_name", nullable = false)
     private String destinationName;
+
+    @Column(nullable = false)
+    private Double neLat;
+    @Column(nullable = false)
+    private Double neLng;
+
+    @Column(nullable = false)
+    private Double swLat;
+    @Column(nullable = false)
+    private Double swLng;
 
 }
