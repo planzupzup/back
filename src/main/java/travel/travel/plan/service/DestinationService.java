@@ -9,6 +9,7 @@ import travel.travel.plan.dto.DestinationResDto;
 import travel.travel.plan.repository.DestinationRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -20,12 +21,18 @@ public class DestinationService {
 
 
     public List<DestinationResDto> findDestination(String map) {
-        List<Destination> destinations = destinationRepository.searchByAddressContaining(map);
-        if (destinations.isEmpty()) {
-            throw new EntityNotFoundException("목적지가 없습니다.");
+        Optional<Destination> findDest = destinationRepository.findByDestinationName(map);
+        if (findDest.isEmpty()) {
+            List<Destination> findCountry = destinationRepository.findByCountry(map);
+            if (!findCountry.isEmpty()) {
+                return findCountry.stream()
+                        .map(DestinationResDto::of)
+                        .toList();
+            }
+            throw new EntityNotFoundException("해당 지역은 없습니다.");
         }
 
-        return destinations.stream()
+        return findDest.stream()
                 .map(DestinationResDto::of)
                 .toList();
     }
