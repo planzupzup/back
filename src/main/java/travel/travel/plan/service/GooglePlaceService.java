@@ -4,11 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 import travel.travel.plan.domain.Destination;
 import travel.travel.plan.domain.Plan;
 import travel.travel.plan.dto.PlaceDto;
@@ -50,7 +49,7 @@ public class GooglePlaceService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Goog-Api-Key", googleApiKey);
         headers.add("X-Goog-FieldMask",
-                "places.id,places.displayName,places.formattedAddress,places.location,places.types");
+                "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.photos");
         headers.add("Content-Type", "application/json");
 
         Map<String, Object> body = Map.of(
@@ -69,12 +68,31 @@ public class GooglePlaceService {
                 restTemplate.postForEntity(endpoint, req, PlacesV1SearchTextResDto.class);
 
         return res.getBody() == null ? List.of() : res.getBody().getPlaces().stream()
-                        .map(p -> new PlaceDto(
-                                p.getDisplayName().getText(),
-                                p.getTypes(),
-                                p.getFormattedAddress(),
-                                p.getLocation().getLatitude(),
-                                p.getLocation().getLongitude()
-                )).toList();
+                        .map(p -> {
+
+                            String photoName = (p.getPhotos() != null && !p.getPhotos().isEmpty())
+                                    ? p.getPhotos().getFirst().getName() : null;
+
+                            int w = (p.getPhotos() != null && !p.getPhotos().isEmpty() && p.getPhotos().getFirst().getWidthPx() != null)
+                                    ? Math.min(p.getPhotos().getFirst().getWidthPx(), 800) : 800;
+
+                            String photoUrl = (photoName != null)
+                                    ? UriComponentsBuilder.fromPath("api/places/photo")
+                                    .queryParam("name", photoName)
+                                    .queryParam("w", w)
+                                    .toUriString()
+                                    : null;
+
+                            return   new PlaceDto(
+                                    p.getDisplayName().getText(),
+                                    p.getTypes(),
+                                    p.getFormattedAddress(),
+                                    p.getLocation().getLatitude(),
+                                    p.getLocation().getLongitude(),
+                                    p.getRating(),
+                                    photoUrl
+                                    );
+                        })
+                .toList();
     }
 }

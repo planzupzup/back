@@ -21,6 +21,9 @@ public class PlacesV1SearchTextResDto {
         private String formattedAddress;
         private LatLng location;
         private List<String> types;
+
+        private Double rating;
+        private List<Photo> photos;
     }
 
     @Getter
@@ -37,5 +40,12 @@ public class PlacesV1SearchTextResDto {
     public static class LatLng {
         private double latitude;
         private double longitude;
+    }
+
+    @Getter @NoArgsConstructor
+    public static class Photo {
+        private String name;
+        private Integer widthPx;
+        private Integer heightPx;
     }
 }

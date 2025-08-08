@@ -19,4 +19,7 @@ public class PlaceDto {
     private double latitude;
     private double longitude;
 
+    private Double rating;
+    private String photoUrl;
+
 }
