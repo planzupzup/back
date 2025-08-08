@@ -65,7 +65,7 @@ public class CommentService {
 
         Page<CommentResDto> commentResDto = switch (type) {
             case LATEST -> commentRepository.findByPlanAndParentIsNull(plan, pageable)
-                    .map(comment -> CommentResDto.of(comment, true));
+                    .map(comment -> CommentResDto.of(comment, false));
             case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParentIsNull(plan, pageable)
                     .map(comment -> CommentResDto.of(comment, false));
         };
