@@ -39,6 +39,7 @@ public class Member extends BaseEntity {
     public Member(String kakaoId) {
         this.kakaoId = kakaoId;
         this.role = Role.USER;
+        this.nickName = "줍줍이_" + generateUuid();
     }
 
     public void updateRefreshToken(String refreshToken) {
