@@ -1,12 +1,10 @@
 package travel.travel.common.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +21,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class JwtTokenProvider {
 
@@ -35,12 +34,11 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expiration}")
     private long refreshMills;
 
-    private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-
     public String generateAccessToken(Long memberId) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessMills);
 
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .setSubject(String.valueOf(memberId))
                 .setIssuedAt(now)
@@ -53,6 +51,7 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date validity = new Date(now.getTime() + refreshMills);
 
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .setSubject(String.valueOf(memberId))
                 .setIssuedAt(now)
@@ -83,12 +82,14 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
+            Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (ExpiredJwtException e) {
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("JWT invalid: {}", e.getClass().getSimpleName());
             return false;
         }
     }
@@ -139,6 +140,7 @@ public class JwtTokenProvider {
 
     private Claims parseClaims(String token) {
         try {
+            Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
@@ -151,6 +153,7 @@ public class JwtTokenProvider {
 
     public Long getUserIdFromToken(String token) {
         try {
+            Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
