@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +35,8 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expiration}")
     private long refreshMills;
 
+    private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
     public String generateAccessToken(Long memberId) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessMills);
@@ -40,7 +45,7 @@ public class JwtTokenProvider {
                 .setSubject(String.valueOf(memberId))
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -52,7 +57,7 @@ public class JwtTokenProvider {
                 .setSubject(String.valueOf(memberId))
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -62,7 +67,7 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
-                .maxAge(60 * 30)
+                .maxAge(accessMills)
                 .build();
     }
 
@@ -72,14 +77,14 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
-                .maxAge(60 * 60 * 24 * 7)
+                .maxAge(refreshMills)
                 .build();
     }
 
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
             return true;
@@ -135,7 +140,7 @@ public class JwtTokenProvider {
     private Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -147,7 +152,7 @@ public class JwtTokenProvider {
     public Long getUserIdFromToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
