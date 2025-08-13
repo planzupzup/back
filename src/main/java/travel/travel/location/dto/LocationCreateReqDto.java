@@ -5,6 +5,8 @@ import lombok.*;
 import travel.travel.location.domain.Location;
 import travel.travel.plan.domain.Plan;
 
+import java.util.List;
+
 
 @Getter
 @NoArgsConstructor
@@ -23,6 +25,7 @@ public class LocationCreateReqDto {
     private String placeId;
     private String googleImageUrl;
     private String types;
+    private List<String> imageUrls;
 
     public static Location toEntity(LocationCreateReqDto dto, Plan plan, Integer day, Integer newOrderNumber) {
         return Location.builder()
@@ -37,6 +40,7 @@ public class LocationCreateReqDto {
                 .plan(plan)
                 .googleImageUrl(dto.googleImageUrl)
                 .types(dto.types)
+                .images(dto.imageUrls)
                 .build();
     }
 }

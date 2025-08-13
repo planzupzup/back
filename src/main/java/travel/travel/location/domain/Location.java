@@ -2,7 +2,6 @@ package travel.travel.location.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import travel.travel.image.domain.Image;
 import travel.travel.plan.domain.Plan;
 
 import java.util.ArrayList;
@@ -38,9 +37,12 @@ public class Location {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "location_images",
+            joinColumns = @JoinColumn(name = "location_id"))
+    @OrderColumn(name = "image_order")
+    @Column(name = "image_url", length = 1024)
     @Builder.Default
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "location_id")
-    private List<Image> images = new ArrayList<>();
+    private List<String> images = new ArrayList<>();
 
 }

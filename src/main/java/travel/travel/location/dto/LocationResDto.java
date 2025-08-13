@@ -1,7 +1,6 @@
 package travel.travel.location.dto;
 
 import lombok.*;
-import travel.travel.image.dto.ImageResDto;
 import travel.travel.location.domain.Location;
 
 import java.time.LocalDate;
@@ -26,18 +25,12 @@ public class LocationResDto {
     private String placeId;
     private String googleImageUrl;
     private String types;
-    private List<ImageResDto> images;
+    private List<String> images;
 
     public static LocationResDto of(Location location) {
         LocalDate startDate = location.getPlan().getStartDate();
-        List<ImageResDto> imageResDtos = Optional.ofNullable(location.getImages())
-                .orElse(List.of())
-                .stream()
-                .map(img -> ImageResDto.builder()
-                        .imageId(img.getImageId())
-                        .imageUrl(img.getImageUrl())
-                        .build())
-                .toList();
+        List<String> imageUrls = Optional.ofNullable(location.getImages())
+                .orElse(List.of());
 
         return LocationResDto.builder()
                 .locationId(location.getLocationId())
@@ -52,7 +45,7 @@ public class LocationResDto {
                 .placeId(location.getPlaceId())
                 .googleImageUrl(location.getGoogleImageUrl())
                 .types(location.getTypes())
-                .images(imageResDtos)
+                .images(imageUrls)
                 .build();
     }
 }
