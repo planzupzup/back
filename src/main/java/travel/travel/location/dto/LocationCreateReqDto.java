@@ -25,7 +25,7 @@ public class LocationCreateReqDto {
     private String placeId;
     private String googleImageUrl;
     private String types;
-    private List<String> imageUrls;
+    private List<String> images;
 
     public static Location toEntity(LocationCreateReqDto dto, Plan plan, Integer day, Integer newOrderNumber) {
         return Location.builder()
@@ -40,7 +40,7 @@ public class LocationCreateReqDto {
                 .plan(plan)
                 .googleImageUrl(dto.googleImageUrl)
                 .types(dto.types)
-                .images(dto.imageUrls)
+                .images(dto.images)
                 .build();
     }
 }
