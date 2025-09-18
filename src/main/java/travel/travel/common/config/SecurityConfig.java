@@ -9,6 +9,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -80,6 +81,8 @@ public class SecurityConfig {
 
                             res.addHeader(HttpHeaders.SET_COOKIE, accessDel.toString());
                             res.addHeader(HttpHeaders.SET_COOKIE, refreshDel.toString());
+
+                            SecurityContextHolder.clearContext();
                             res.setStatus(204);
                             log.info("로그아웃 성공 : \naccess : {} \nrefresh : {}", accessDel, refreshDel);
                         })
