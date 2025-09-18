@@ -29,7 +29,7 @@ public class LocationResDto {
 
     public static LocationResDto of(Location location) {
         LocalDate startDate = location.getPlan().getStartDate();
-        List<String> imageUrls = Optional.ofNullable(location.getImages())
+        List<String> images = Optional.ofNullable(location.getImages())
                 .orElse(List.of());
 
         return LocationResDto.builder()
@@ -45,7 +45,7 @@ public class LocationResDto {
                 .placeId(location.getPlaceId())
                 .googleImageUrl(location.getGoogleImageUrl())
                 .types(location.getTypes())
-                .images(imageUrls)
+                .images(images)
                 .build();
     }
 }
