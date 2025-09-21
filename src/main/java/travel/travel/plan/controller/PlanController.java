@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import travel.travel.common.dto.CommonErrorDto;
 import travel.travel.common.dto.CommonResDto;
 import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.common.service.AuthService;
 import travel.travel.plan.domain.PlanSortType;
 import travel.travel.plan.dto.PlanCreateReqDto;
@@ -39,10 +41,10 @@ public class PlanController {
 
 
     @PostMapping
-    public ResponseEntity<?> createPlan(@Valid @RequestBody PlanCreateReqDto planCreateReqDto) {
+    public ResponseEntity<CommonResDto<PlanResDto>> createPlan(@Valid @RequestBody PlanCreateReqDto planCreateReqDto) {
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
         if (!probe.isConsumed()) {
-            return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."), HttpStatus.TOO_MANY_REQUESTS);
+            throw new CustomException(CustomErrorCode.TOO_MANY_REQUESTS);
         }
       
         Long memberId = 1L;

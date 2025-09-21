@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import travel.travel.common.dto.CommonErrorDto;
+import travel.travel.common.exception.CustomException;
 
 
 
@@ -32,6 +33,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonErrorDto> SecurityExceptionHandler(SecurityException e) {
         e.printStackTrace();
         return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.FORBIDDEN, e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<CommonErrorDto> CustomExceptionHandler(CustomException e) {
+        e.printStackTrace();
+        return new ResponseEntity<>(CommonErrorDto.of(e.getErrorCode().getHttpStatus(), e.getErrorCode().getMessage()), e.getErrorCode().getHttpStatus());
     }
 
     @ExceptionHandler(RuntimeException.class)
