@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class PlanResDto {
     private Long planId;
+    private Long areaCode;
 
     private String nickName;
     private String profileImage;
@@ -42,6 +43,7 @@ public class PlanResDto {
                 .endDate(plan.getEndDate())
                 .destinationName(plan.getDestination().getDestinationName())
                 .locations(locationResDtoList)
+                .areaCode(plan.getAreaCode())
                 .build();
     }
 

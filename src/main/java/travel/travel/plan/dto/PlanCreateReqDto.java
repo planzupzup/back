@@ -2,7 +2,6 @@ package travel.travel.plan.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import travel.travel.member.domain.Member;
 import travel.travel.plan.domain.Destination;
@@ -28,7 +27,7 @@ public class PlanCreateReqDto {
 
     private String destinationName;
 
-    public static Plan toEntity(PlanCreateReqDto dto, Member member, Destination destination) {
+    public static Plan toEntity(PlanCreateReqDto dto, Member member, Destination destination, Long areaCode) {
         return Plan.builder()
                 .isPublic(dto.isPublic)
                 .title(dto.title)
@@ -37,6 +36,7 @@ public class PlanCreateReqDto {
                 .endDate(dto.endDate)
                 .destination(destination)
                 .member(member)
+                .areaCode(areaCode)
                 .build();
     }
 }

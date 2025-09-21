@@ -32,18 +32,20 @@ public class PlanService{
     private final DestinationRepository destinationRepository;
     private final MemberRepository memberRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final AreaCodeService areaCodeService;
 
     public PlanResDto createPlan(PlanCreateReqDto planCreateReqDto,Long memberId) {
         Member member = getMember(memberId);
         Destination destination = destinationRepository.findByDestinationName(planCreateReqDto.getDestinationName())
-                .orElseThrow(()->new EntityNotFoundException("존재하지 않는 장소입니다."));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 장소입니다."));
 
         if (planCreateReqDto.getStartDate().isAfter(planCreateReqDto.getEndDate())) {
             throw new IllegalArgumentException("시작일은 종료일보다 이전이어야 합니다.");
         }
 
+        Long areaCode = areaCodeService.getAreaCodeByName(destination.getDestinationName());
         Plan savedPlan = planRepository.save(
-                PlanCreateReqDto.toEntity(planCreateReqDto, member, destination)
+                PlanCreateReqDto.toEntity(planCreateReqDto, member, destination, areaCode)
         );
 
         return PlanResDto.of(savedPlan, PlanOwnership.MINE, savedPlan.isPublic(), null);

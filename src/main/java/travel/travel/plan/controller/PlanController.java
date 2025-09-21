@@ -45,7 +45,7 @@ public class PlanController {
                                  .body(CommonResDto.of(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.", null));
         }
       
-        Long memberId = authService.getAuthenticatedUserId();
+        Long memberId = 1L;
         PlanResDto dto = planService.createPlan(planCreateReqDto, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "계획생성이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
