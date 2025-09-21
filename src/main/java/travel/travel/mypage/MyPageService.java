@@ -1,6 +1,5 @@
 package travel.travel.mypage;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,8 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.comment.repository.CommentRepository;
 import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.image.domain.Image;
 import travel.travel.image.repository.ImageRepository;
 import travel.travel.image.service.ImageService;
@@ -46,7 +47,7 @@ public class MyPageService {
 
         if (member.getImageUrl() != null) {
             Image image = imageRepository.findByImageUrl(member.getImageUrl())
-                    .orElseThrow(() -> new EntityNotFoundException("이미지 없습니다."));
+                    .orElseThrow(() -> new CustomException(CustomErrorCode.IMAGE_NOT_FOUND));
 
             imageService.deleteImages(List.of(image));
             member.updateImage(null);
@@ -58,7 +59,7 @@ public class MyPageService {
                 log.info("이미지 업데이트 성공 : {}", newImageUrl);
             } catch (S3Exception e) {
                 log.error("S3 이미지 업로드 실패: {}", e.getMessage(), e);
-                throw new RuntimeException("프로필 이미지 업로드 중 오류가 발생했습니다.");
+                throw new CustomException(CustomErrorCode.IMAGE_UPLOAD_FAILED);
             }
         }
 
@@ -119,6 +120,6 @@ public class MyPageService {
 
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.MEMBER_NOT_FOUND));
     }
 }
