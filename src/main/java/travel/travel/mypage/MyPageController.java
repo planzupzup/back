@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import travel.travel.common.dto.CommonResDto;
-import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.dto.PageApiResDto;
 import travel.travel.common.service.AuthService;
 import travel.travel.plan.domain.PlanSortType;
 import travel.travel.plan.dto.PlanThumbResDto;
@@ -37,24 +37,24 @@ public class MyPageController {
     }
 
     @GetMapping("/bookmark/{type}")
-    public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getBookmarkedPlans(
+    public ResponseEntity<CommonResDto<PageApiResDto<PlanThumbResDto>>> getBookmarkedPlans(
             @PathVariable PlanSortType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Long memberId = authService.getAuthenticatedUserId();
-        PageApiResponse<PlanThumbResDto> dto = myPageService.getBookmarkedPlans(type, page, size, memberId);
+        PageApiResDto<PlanThumbResDto> dto = myPageService.getBookmarkedPlans(type, page, size, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "북마크한 계획 조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @GetMapping("/plans")
-    public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getMyPlans(
+    public ResponseEntity<CommonResDto<PageApiResDto<PlanThumbResDto>>> getMyPlans(
             @RequestParam(defaultValue = "ALL") VisibilityType visibility,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Long memberId = authService.getAuthenticatedUserId();
-        PageApiResponse<PlanThumbResDto> dto = myPageService.getMyPlans(visibility, page, size, memberId);
+        PageApiResDto<PlanThumbResDto> dto = myPageService.getMyPlans(visibility, page, size, memberId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "내가 쓴 글 목록 조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 

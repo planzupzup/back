@@ -1,9 +1,10 @@
 package travel.travel.like.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import travel.travel.comment.domain.Comment;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.comment.repository.CommentRepository;
 import travel.travel.like.domain.Like;
 import travel.travel.like.repository.LikeRepository;
@@ -27,10 +28,10 @@ public class LikeService {
         Member member = getMember(memberId);
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
 
         planRepository.findById(comment.getPlan().getPlanId())
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         Optional<Like> existingLike = likeRepository.findByMemberAndComment(member, comment);
         if (existingLike.isEmpty()) {
@@ -40,7 +41,7 @@ public class LikeService {
                     .build();
             likeRepository.save(like);
         } else {
-            throw new IllegalStateException("이미 좋아요를 눌렀습니다.");
+            throw new CustomException(CustomErrorCode.ALREADY_PUSH);
         }
     }
 
@@ -48,10 +49,10 @@ public class LikeService {
         Member member = getMember(memberId);
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
 
         planRepository.findById(comment.getPlan().getPlanId())
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         Optional<Like> existingLike = likeRepository.findByMemberAndComment(member, comment);
         existingLike.ifPresent(likeRepository::delete);
@@ -59,16 +60,16 @@ public class LikeService {
 
     public long getLikeCount(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
 
         planRepository.findById(comment.getPlan().getPlanId())
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         return likeRepository.countByComment(comment);
     }
 
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.MEMBER_NOT_FOUND));
     }
 }

@@ -1,10 +1,11 @@
 package travel.travel.location.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.location.domain.Location;
 import travel.travel.location.dto.LocationCreateReqDto;
 import travel.travel.location.dto.LocationResDto;
@@ -28,7 +29,7 @@ public class LocationService {
 
     public List<List<LocationResDto>> createLocation(List<List<LocationCreateReqDto>> locationCreateReqDtoList, Long planId) {
         Plan findPlan = planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
         locationRepository.deleteLocationsByPlan(findPlan);
         List<List<LocationResDto>> result = new ArrayList<>();
 
@@ -54,13 +55,13 @@ public class LocationService {
     private void validateDay(Plan plan, Integer day) {
         long totalDays = ChronoUnit.DAYS.between(plan.getStartDate(), plan.getEndDate()) + 1;
         if (day < 1 || day > totalDays) {
-            throw new IllegalArgumentException("요청하신 day 값이 계획 범위를 벗어났습니다.");
+            throw new CustomException(CustomErrorCode.INVALID_DATE_RANGE);
         }
     }
 
     public LocationResDto getLocation(Long locationId) {
         Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 지역입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.LOCATION_NOT_FOUND));
 
         return LocationResDto.of(location);
     }

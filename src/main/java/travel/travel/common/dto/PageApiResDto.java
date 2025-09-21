@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PageApiResponse<T> {
+public class PageApiResDto<T> {
     private List<T> content;
     private int page;
     private int size;
@@ -19,8 +19,8 @@ public class PageApiResponse<T> {
     private boolean first;
     private boolean last;
 
-    public static <T> PageApiResponse<T> of(Page<T> page) {
-        return PageApiResponse.<T>builder()
+    public static <T> PageApiResDto<T> of(Page<T> page) {
+        return PageApiResDto.<T>builder()
                 .content(page.getContent())
                 .page(page.getNumber())
                 .size(page.getSize())

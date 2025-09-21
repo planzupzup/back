@@ -1,11 +1,11 @@
 package travel.travel.bookmark.service;
 
-
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import travel.travel.bookmark.domain.Bookmark;
 import travel.travel.bookmark.repository.BookmarkRepository;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
 import travel.travel.plan.domain.Plan;
@@ -25,7 +25,7 @@ public class BookmarkService {
         Member member = getMember(memberId);
 
         Plan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         Optional<Bookmark> existingBookmark = bookmarkRepository.findByMemberAndPlan(member, plan);
         if (existingBookmark.isEmpty()) {
@@ -35,7 +35,7 @@ public class BookmarkService {
                     .build();
             bookmarkRepository.save(bookmark);
         } else {
-            throw new IllegalStateException("이미 좋아요를 눌렀습니다.");
+            throw new CustomException(CustomErrorCode.ALREADY_PUSH);
         }
     }
 
@@ -43,7 +43,7 @@ public class BookmarkService {
         Member member = getMember(memberId);
 
         Plan Plan = planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         Optional<Bookmark> existingBookmark = bookmarkRepository.findByMemberAndPlan(member, Plan);
         existingBookmark.ifPresent(bookmarkRepository::delete);
@@ -51,12 +51,12 @@ public class BookmarkService {
 
     public long getBookmarkCount(Long planId) {
         Plan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
         return bookmarkRepository.countByPlan(plan);
     }
 
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.MEMBER_NOT_FOUND));
     }
 }

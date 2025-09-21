@@ -3,6 +3,8 @@ package travel.travel.common.service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 
 
 @Component
@@ -10,7 +12,7 @@ public class AuthService {
 
     public Long getAuthenticatedUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!isAuthenticatedUser()) throw new SecurityException("존재하지 않는 회원입니다.");
+        if(!isAuthenticatedUser()) throw new CustomException(CustomErrorCode.AUTHENTICATION_FAILED);
         return Long.parseLong(authentication.getPrincipal().toString());
     }
 

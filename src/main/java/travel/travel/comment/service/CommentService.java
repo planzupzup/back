@@ -1,6 +1,5 @@
 package travel.travel.comment.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,9 @@ import travel.travel.comment.dto.CommentCreateReqDto;
 import travel.travel.comment.dto.CommentResDto;
 import travel.travel.comment.dto.CommentUpdateReqDto;
 import travel.travel.comment.repository.CommentRepository;
-import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.dto.PageApiResDto;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.like.repository.LikeRepository;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
@@ -38,16 +39,14 @@ public class CommentService {
 
     public CommentResDto createComment(CommentCreateReqDto commentCreateReqDto, Long memberId) {
         Member member = getMember(memberId);
-
-        Plan plan = planRepository.findById(commentCreateReqDto.getPlanId())
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+        Plan plan = findPlan(commentCreateReqDto.getPlanId());
 
         Comment parent = null;
         if (commentCreateReqDto.getParentId() != null) {
             parent = commentRepository.findById(commentCreateReqDto.getParentId())
-                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+                    .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
             if (parent.getParent() != null) {
-                throw new IllegalArgumentException("대댓글(2단계)까지만 작성할 수 있습니다.");
+                throw new CustomException(CustomErrorCode.MAX_COMMENT_DEPTH_EXCEEDED);
             }
         }
 
@@ -56,11 +55,8 @@ public class CommentService {
         return CommentResDto.of(savedComment,isLiked);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type) {
-        Plan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-
-
+    public PageApiResDto<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type) {
+        Plan plan = findPlan(planId);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
 
         Page<CommentResDto> commentResDto = switch (type) {
@@ -70,14 +66,12 @@ public class CommentService {
                     .map(comment -> CommentResDto.of(comment, false));
         };
 
-        return PageApiResponse.of(commentResDto);
+        return PageApiResDto.of(commentResDto);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type, Long memberId) {
+    public PageApiResDto<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type, Long memberId) {
         Member member = getMember(memberId);
-
-        Plan plan = planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
+        Plan plan = findPlan(planId);
 
         List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
         Set<Long> likedSet = new HashSet<>(likedIds);
@@ -91,15 +85,12 @@ public class CommentService {
                     .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
         };
 
-        return PageApiResponse.of(commentResDto);
+        return PageApiResDto.of(commentResDto);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type) {
-
-        planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        Comment parent = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+    public PageApiResDto<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type) {
+        findPlan(planId);
+        Comment parent = findComment(commentId);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
 
@@ -111,16 +102,14 @@ public class CommentService {
         };
 
 
-        return PageApiResponse.of(commentResDto);
+        return PageApiResDto.of(commentResDto);
     }
 
-    public PageApiResponse<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type, Long memberId) {
+    public PageApiResDto<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type, Long memberId) {
         Member member = getMember(memberId);
 
-        planRepository.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 계획입니다."));
-        Comment parent = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+        findPlan(planId);
+        Comment parent = findComment(commentId);
 
         List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
         Set<Long> likedSet = new HashSet<>(likedIds);
@@ -134,17 +123,16 @@ public class CommentService {
                     .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
         };
 
-        return PageApiResponse.of(commentResDto);
+        return PageApiResDto.of(commentResDto);
     }
 
     public CommentResDto updateComment(Long commentId, CommentUpdateReqDto commentUpdateReqDto, Long memberId) {
         Member member = getMember(memberId);
 
-        Comment findComment = commentRepository.findById(commentId)
-                        .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+        Comment findComment = findComment(commentId);
 
         if (!member.equals(findComment.getMember())) {
-            throw new IllegalStateException("본인 댓글만 수정할 수 있습니다.");
+            throw new CustomException(CustomErrorCode.UPDATE_DENIED);
         }
 
         findComment.updateComment(commentUpdateReqDto.getContent());
@@ -152,13 +140,16 @@ public class CommentService {
         return CommentResDto.of(findComment, isLiked);
     }
 
+    private Comment findComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                        .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
+    }
+
     public void deleteComment(Long commentId, Long memberId) {
         Member member = getMember(memberId);
-
-        Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+        Comment findComment = findComment(commentId);
         if (!member.equals(findComment.getMember())) {
-            throw new IllegalStateException("본인 댓글만 삭제할 수 있습니다.");
+            throw new CustomException(CustomErrorCode.DELETE_DENIED);
         }
 
         if (findComment.getParent() != null) {
@@ -168,8 +159,13 @@ public class CommentService {
         commentRepository.delete(findComment);
     }
 
+    private Plan findPlan(Long planId) {
+        return planRepository.findById(planId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
+    }
+
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.MEMBER_NOT_FOUND));
     }
 }

@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import travel.travel.common.dto.CommonResDto;
-import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.dto.PageApiResDto;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.common.service.AuthService;
 import travel.travel.plan.domain.PlanSortType;
 import travel.travel.plan.dto.PlanCreateReqDto;
@@ -41,8 +43,7 @@ public class PlanController {
     public ResponseEntity<CommonResDto<PlanResDto>> createPlan(@Valid @RequestBody PlanCreateReqDto planCreateReqDto) {
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
         if (!probe.isConsumed()) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                                 .body(CommonResDto.of(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.", null));
+            throw new CustomException(CustomErrorCode.TOO_MANY_REQUESTS);
         }
       
         Long memberId = 1L;
@@ -71,12 +72,12 @@ public class PlanController {
     }
 
     @GetMapping
-    public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getAllPlan(
+    public ResponseEntity<CommonResDto<PageApiResDto<PlanThumbResDto>>> getAllPlan(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
             ) {
 
-        PageApiResponse<PlanThumbResDto> dto = authService.isAuthenticatedUser()
+        PageApiResDto<PlanThumbResDto> dto = authService.isAuthenticatedUser()
                 ? planService.getAllPlan(page, size, authService.getAuthenticatedUserId())
                 : planService.getAllPlan(page, size);
 
@@ -85,13 +86,13 @@ public class PlanController {
 
 
     @GetMapping("/search/{keyword}/{type}")
-    public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getAllPlanByKeyword(
+    public ResponseEntity<CommonResDto<PageApiResDto<PlanThumbResDto>>> getAllPlanByKeyword(
             @PathVariable String keyword,
             @PathVariable PlanSortType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PageApiResponse<PlanThumbResDto> dto = authService.isAuthenticatedUser()
+        PageApiResDto<PlanThumbResDto> dto = authService.isAuthenticatedUser()
                 ? planService.getAllPlanByKeyword(keyword, type, page, size, authService.getAuthenticatedUserId())
                 : planService.getAllPlanByKeyword(keyword, type, page, size);
 
