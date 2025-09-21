@@ -20,6 +20,7 @@ public enum CustomErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근할 권한이 없습니다."),
     UPDATE_DENIED(HttpStatus.FORBIDDEN, "수정할 권한이 없습니다."),
     DELETE_DENIED(HttpStatus.FORBIDDEN, "삭제할 권한이 없습니다."),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
     TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
     IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 업로드 중 오류가 발생했습니다.");
 

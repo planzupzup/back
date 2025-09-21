@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.common.service.JwtTokenProvider;
 import travel.travel.member.domain.Member;
 import travel.travel.member.repository.MemberRepository;
@@ -35,7 +37,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String kakaoId = String.valueOf(oAuth2User.getAttributes().get("id"));
 
         Member member = memberRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.MEMBER_NOT_FOUND));
 
         Long memberId = member.getId();
         String accessToken = jwtTokenProvider.generateAccessToken(memberId);
