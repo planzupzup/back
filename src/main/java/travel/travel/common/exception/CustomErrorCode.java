@@ -16,6 +16,7 @@ public enum CustomErrorCode {
     INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "시작일은 종료일보다 이전이어야 합니다."),
     ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다."),
     NO_FILES_TO_UPLOAD(HttpStatus.BAD_REQUEST, "업로드할 파일이 없습니다."),
+    MAX_COMMENT_DEPTH_EXCEEDED(HttpStatus.BAD_REQUEST, "대댓글(2단계)까지만 작성할 수 있습니다."),
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드에 실패했습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근할 권한이 없습니다."),
     UPDATE_DENIED(HttpStatus.FORBIDDEN, "수정할 권한이 없습니다."),
