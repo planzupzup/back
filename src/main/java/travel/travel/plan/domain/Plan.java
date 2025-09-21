@@ -30,6 +30,8 @@ public class Plan extends BaseEntity {
     @Column(length = 100)
     private String title;
 
+    private Long areaCode;
+
     @Lob
     private String content;
 
