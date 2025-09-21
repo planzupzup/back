@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import travel.travel.bookmark.repository.BookmarkRepository;
-import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.dto.PageApiResDto;
 import travel.travel.common.exception.CustomErrorCode;
 import travel.travel.common.exception.CustomException;
 import travel.travel.location.dto.LocationResDto;
@@ -104,17 +104,17 @@ public class PlanService{
         return PlanResDto.of(existingPlan, PlanOwnership.OTHERS, bookmarked, filteredLocations);
     }
 
-    public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size) {
+    public PageApiResDto<PlanThumbResDto> getAllPlan(int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
         Page<PlanThumbResDto> planDto = planRepository.findAllByIsPublicTrue(pageable)
                 .map(plan -> PlanThumbResDto.of(plan, false));
 
-        return PageApiResponse.of(planDto);
+        return PageApiResDto.of(planDto);
 
     }
 
-    public PageApiResponse<PlanThumbResDto> getAllPlan(int page, int size, Long memberId) {
+    public PageApiResDto<PlanThumbResDto> getAllPlan(int page, int size, Long memberId) {
         Member member = getMember(memberId);
         List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
         Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
@@ -123,10 +123,10 @@ public class PlanService{
         Page<PlanThumbResDto> planDto = planRepository.findAllByIsPublicTrue(pageable)
                 .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
 
-        return PageApiResponse.of(planDto);
+        return PageApiResDto.of(planDto);
     }
 
-    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, PlanSortType type, int page, int size) {
+    public PageApiResDto<PlanThumbResDto> getAllPlanByKeyword(String keyword, PlanSortType type, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -140,10 +140,10 @@ public class PlanService{
         };
 
 
-        return PageApiResponse.of(planDto);
+        return PageApiResDto.of(planDto);
     }
 
-    public PageApiResponse<PlanThumbResDto> getAllPlanByKeyword(String keyword, PlanSortType type, int page, int size, Long memberId) {
+    public PageApiResDto<PlanThumbResDto> getAllPlanByKeyword(String keyword, PlanSortType type, int page, int size, Long memberId) {
         Member member = getMember(memberId);
         List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
         Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
@@ -160,7 +160,7 @@ public class PlanService{
         };
 
 
-        return PageApiResponse.of(planDto);
+        return PageApiResDto.of(planDto);
     }
 
     public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto, Long memberId) {

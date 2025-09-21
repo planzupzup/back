@@ -10,9 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import travel.travel.common.dto.CommonErrorDto;
 import travel.travel.common.dto.CommonResDto;
-import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.dto.PageApiResDto;
 import travel.travel.common.exception.CustomErrorCode;
 import travel.travel.common.exception.CustomException;
 import travel.travel.common.service.AuthService;
@@ -73,12 +72,12 @@ public class PlanController {
     }
 
     @GetMapping
-    public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getAllPlan(
+    public ResponseEntity<CommonResDto<PageApiResDto<PlanThumbResDto>>> getAllPlan(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
             ) {
 
-        PageApiResponse<PlanThumbResDto> dto = authService.isAuthenticatedUser()
+        PageApiResDto<PlanThumbResDto> dto = authService.isAuthenticatedUser()
                 ? planService.getAllPlan(page, size, authService.getAuthenticatedUserId())
                 : planService.getAllPlan(page, size);
 
@@ -87,13 +86,13 @@ public class PlanController {
 
 
     @GetMapping("/search/{keyword}/{type}")
-    public ResponseEntity<CommonResDto<PageApiResponse<PlanThumbResDto>>> getAllPlanByKeyword(
+    public ResponseEntity<CommonResDto<PageApiResDto<PlanThumbResDto>>> getAllPlanByKeyword(
             @PathVariable String keyword,
             @PathVariable PlanSortType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PageApiResponse<PlanThumbResDto> dto = authService.isAuthenticatedUser()
+        PageApiResDto<PlanThumbResDto> dto = authService.isAuthenticatedUser()
                 ? planService.getAllPlanByKeyword(keyword, type, page, size, authService.getAuthenticatedUserId())
                 : planService.getAllPlanByKeyword(keyword, type, page, size);
 

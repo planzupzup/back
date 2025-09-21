@@ -10,7 +10,7 @@ import travel.travel.comment.dto.CommentResDto;
 import travel.travel.comment.dto.CommentUpdateReqDto;
 import travel.travel.comment.service.CommentService;
 import travel.travel.common.dto.CommonResDto;
-import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.dto.PageApiResDto;
 import travel.travel.common.service.AuthService;
 
 
@@ -30,14 +30,14 @@ public class CommentController  {
     }
 
     @GetMapping("/{planId}/{type}")
-    public ResponseEntity<CommonResDto<PageApiResponse<CommentResDto>>> getComments(
+    public ResponseEntity<CommonResDto<PageApiResDto<CommentResDto>>> getComments(
             @PathVariable Long planId,
             @PathVariable CommentSortType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
 
-        PageApiResponse<CommentResDto> dtos = authService.isAuthenticatedUser()
+        PageApiResDto<CommentResDto> dtos = authService.isAuthenticatedUser()
                 ? commentService.getCommentsByPost(planId, page, size, type, authService.getAuthenticatedUserId())
                 : commentService.getCommentsByPost(planId, page, size, type);
 
@@ -45,12 +45,12 @@ public class CommentController  {
     }
 
     @GetMapping("/{planId}/{commentId}/{type}")
-    public ResponseEntity<CommonResDto<PageApiResponse<CommentResDto>>> getComments(
+    public ResponseEntity<CommonResDto<PageApiResDto<CommentResDto>>> getComments(
             @PathVariable Long planId, @PathVariable Long commentId, @PathVariable CommentSortType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        PageApiResponse<CommentResDto> dtos = authService.isAuthenticatedUser()
+        PageApiResDto<CommentResDto> dtos = authService.isAuthenticatedUser()
                 ? commentService.getCommentsByParent(planId, commentId, page, size, type, authService.getAuthenticatedUserId())
                 : commentService.getCommentsByParent(planId, commentId, page, size, type);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "부모댓글 기준으로 자식댓글 조회가 성공적으로 되었습니다.", dtos), HttpStatus.OK);

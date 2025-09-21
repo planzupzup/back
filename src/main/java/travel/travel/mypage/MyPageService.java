@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.comment.repository.CommentRepository;
-import travel.travel.common.dto.PageApiResponse;
+import travel.travel.common.dto.PageApiResDto;
 import travel.travel.common.exception.CustomErrorCode;
 import travel.travel.common.exception.CustomException;
 import travel.travel.image.domain.Image;
@@ -71,7 +71,7 @@ public class MyPageService {
         return MemberResDto.of(member);
     }
 
-    public PageApiResponse<PlanThumbResDto> getBookmarkedPlans(PlanSortType type, int page, int size, Long memberId) {
+    public PageApiResDto<PlanThumbResDto> getBookmarkedPlans(PlanSortType type, int page, int size, Long memberId) {
         Member member = getMember(memberId);
 
         Pageable pageable = PageRequest.of(page, size);
@@ -85,10 +85,10 @@ public class MyPageService {
                     .map(plan -> PlanThumbResDto.of(plan, true));
         };
 
-        return PageApiResponse.of(plansDto);
+        return PageApiResDto.of(plansDto);
     }
 
-    public PageApiResponse<PlanThumbResDto> getMyPlans(VisibilityType visibility, int page, int size, Long memberId) {
+    public PageApiResDto<PlanThumbResDto> getMyPlans(VisibilityType visibility, int page, int size, Long memberId) {
         Member member = getMember(memberId);
         List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
         Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
@@ -106,7 +106,7 @@ public class MyPageService {
                     .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
         };
 
-        return PageApiResponse.of(planDto);
+        return PageApiResDto.of(planDto);
     }
 
 
