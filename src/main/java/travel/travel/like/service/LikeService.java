@@ -41,7 +41,7 @@ public class LikeService {
                     .build();
             likeRepository.save(like);
         } else {
-            throw new CustomException(CustomErrorCode.ALREADY_LIKED);
+            throw new CustomException(CustomErrorCode.ALREADY_PUSH);
         }
     }
 
