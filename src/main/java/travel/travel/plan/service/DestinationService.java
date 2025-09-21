@@ -1,9 +1,10 @@
 package travel.travel.plan.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import travel.travel.plan.domain.Destination;
 import travel.travel.plan.dto.DestinationResDto;
 import travel.travel.plan.repository.DestinationRepository;
@@ -29,7 +30,7 @@ public class DestinationService {
                         .map(DestinationResDto::of)
                         .toList();
             }
-            throw new EntityNotFoundException("해당 지역은 없습니다.");
+            throw new CustomException(CustomErrorCode.DESTINATION_NOT_FOUND);
         }
 
         return findDest.stream()
