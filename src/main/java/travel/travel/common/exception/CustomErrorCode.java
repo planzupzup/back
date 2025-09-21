@@ -11,6 +11,7 @@ public enum CustomErrorCode {
     DESTINATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 장소를 찾을 수 없습니다."),
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 찾을 수 없습니다."),
+    LOCATION_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 지역을 찾을 수 없습니다."),
     INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "시작일은 종료일보다 이전이어야 합니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근할 권한이 없습니다."),
     UPDATE_DENIED(HttpStatus.FORBIDDEN, "수정할 권한이 없습니다."),
