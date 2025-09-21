@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import travel.travel.common.dto.CommonErrorDto;
 import travel.travel.common.dto.CommonResDto;
 import travel.travel.common.dto.PageApiResponse;
 import travel.travel.common.service.AuthService;
@@ -38,11 +39,10 @@ public class PlanController {
 
 
     @PostMapping
-    public ResponseEntity<CommonResDto<PlanResDto>> createPlan(@Valid @RequestBody PlanCreateReqDto planCreateReqDto) {
+    public ResponseEntity<?> createPlan(@Valid @RequestBody PlanCreateReqDto planCreateReqDto) {
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
         if (!probe.isConsumed()) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                                 .body(CommonResDto.of(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.", null));
+            return new ResponseEntity<>(CommonErrorDto.of(HttpStatus.TOO_MANY_REQUESTS, "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."), HttpStatus.TOO_MANY_REQUESTS);
         }
       
         Long memberId = 1L;
