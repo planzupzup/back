@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import travel.travel.common.exception.CustomErrorCode;
+import travel.travel.common.exception.CustomException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +38,7 @@ public class ImageService {
 
     public List<ImageResDto> uploadFiles(List<MultipartFile> multipartFiles) {
         if (multipartFiles == null || multipartFiles.isEmpty()) {
-            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
+            throw new CustomException(CustomErrorCode.NO_FILES_TO_UPLOAD);
         }
 
         return multipartFiles.stream()
@@ -70,7 +72,7 @@ public class ImageService {
 
                     } catch (IOException e) {
                         log.error("S3 업로드 실패", e);
-                        throw new RuntimeException("S3 업로드 실패: " + e.getMessage(), e);
+                        throw new CustomException(CustomErrorCode.S3_UPLOAD_FAILED);
                     }
                 })
                 .toList();
