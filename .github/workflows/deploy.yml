@@ -95,4 +95,11 @@ jobs:
             # 완전히 분리된 프로세스로 실행
             nohup setsid java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 &
             sleep 2
-            echo "App started"
+
+            if pgrep -f 'java -jar ${{ secrets.JAR_NAME }} > /dev/null; then
+              echo "App started successfully"
+              exit 0   # 성공
+            else
+              echo "App failed to start"
+              exit 1   # 실패
+            fi
