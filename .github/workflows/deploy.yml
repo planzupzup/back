@@ -1,5 +1,4 @@
 name: CI/CD
-
 on:
   push:
     branches: [ "develop" ]
@@ -14,31 +13,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. 코드 체크아웃
-      - uses: actions/checkout@v4
-
-      # 2. JDK 21 설정
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      # 2. JDK 21 설정 (캐시 포함)
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-
-      # 3. Gradle 설정
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
+          cache: gradle
+          
+      # 3. Gradle wrapper 실행 권한 부여
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+        
       # 4. Secrets → src/main/resources/application.yml 생성
-      - name: Inject application.yml from Secret
+      - name: Create application.yml from secrets
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_PROPERTIES }}" > src/main/resources/application.yml
-
+          
       # 5. Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean build -x test
-
+        
       # 6. 빌드 아티팩트 업로드
-      - name: Upload JAR
+      - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
@@ -50,24 +51,26 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     steps:
       # 1. 아티팩트 다운로드
-      - name: Download JAR
+      - name: Download JAR artifact
         uses: actions/download-artifact@v4
         with:
           name: built-jar
           path: build/libs
-
+          
       # 2. JAR 존재 확인
-      - name: Verify JAR exists
+      - name: Verify JAR file
         run: |
           if [ ! -f build/libs/${{ secrets.JAR_NAME }} ]; then
-            echo "Error: JAR file not found!"
+            echo "❌ Error: JAR file not found!"
             exit 1
           fi
-
+          echo "✅ JAR file verified: $(ls -la build/libs/)"
+          
       # 3. 빌드 아티팩트 EC2로 복사
-      - name: Copy artifact to EC2
+      - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -76,20 +79,49 @@ jobs:
           source: build/libs/${{ secrets.JAR_NAME }}
           target: ${{ secrets.APP_DIR }}
           port: 22
-
-      # 4. EC2에 SSH 접속 후 앱 재시작
-      - name: SSH and restart app
+          
+      # 4. EC2에 SSH 접속 후 배포 실행
+      - name: Deploy application
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # 환경변수 설정
+            export JAR_NAME="${{ secrets.JAR_NAME }}"
+            export APP_DIR="${{ secrets.APP_DIR }}"
+            
+            echo "Starting deployment process..."
+            
             # 기존 앱 종료
-            pkill -f 'java -jar' || echo "No running app found"
-
-            # 배포 디렉토리 이동
-            cd ${{ secrets.APP_DIR }}
-
-            # 새 앱 실행
-            nohup java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 & disown
+            if pgrep -f "java -jar $JAR_NAME" > /dev/null; then
+              echo "Stopping existing application..."
+              pkill -f "java -jar $JAR_NAME" || echo "No running app found"
+              sleep 3
+            fi
+            
+            # 배포 디렉토리로 이동
+            cd "$APP_DIR/build/libs" || exit 1
+            
+            # JAR 파일 존재 확인
+            if [ ! -f "$JAR_NAME" ]; then
+              echo "Error: JAR file not found in $APP_DIR/build/libs/"
+              exit 1
+            fi
+            
+            echo "Starting application..."
+            # 애플리케이션 시작
+            nohup java -jar "$JAR_NAME" > ../app.log 2>&1 &
+            
+            sleep 5
+            
+            # 애플리케이션 시작 확인
+            if pgrep -f "java -jar $JAR_NAME" > /dev/null; then
+              echo "✅ Application started successfully"
+            else
+              echo "❌ Application failed to start"
+              echo "Last 20 lines of log:"
+              tail -20 ../app.log || echo "No log file found"
+              exit 1
+            fi
