@@ -93,6 +93,6 @@ jobs:
             sleep 5
 
             # 완전히 분리된 프로세스로 실행
-            nohup java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 &
+            nohup setsid java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 &
             sleep 2
             echo "App started"
