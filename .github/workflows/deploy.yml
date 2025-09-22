@@ -73,7 +73,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
-          source: ${{ secrets.JAR_NAME }}
+          source: build/libs/${{ secrets.JAR_NAME }}
           target: ${{ secrets.APP_DIR }}
           port: 22
 
