@@ -20,7 +20,8 @@ public class CorsConfig implements WebMvcConfigurer {
             "http://localhost:8080",
             "https://planzupzup.vercel.app",
             "https://planzupzup.co.kr",
-            "https://api.planzupzup.co.kr"
+            "https://api.planzupzup.co.kr",
+            "http://localhost:8080"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
