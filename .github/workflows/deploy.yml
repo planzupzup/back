@@ -3,11 +3,7 @@ on:
   push:
     branches: [ "develop" ]
   pull_request:
-    branches: [ "develop" ] 
-
-env:
-  JAVA_VERSION: '21'
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true"
+    branches: [ "develop" ]
 
 jobs:
   # --------------------
