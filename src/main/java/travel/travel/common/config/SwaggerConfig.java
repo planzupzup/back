@@ -14,7 +14,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-                .info(new Info().title("플랜줍줍 API"))
+                .info(new Info().title("플랜줍줍 API입니다"))
                 .components(new Components().addSecuritySchemes("cookieAuth",
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.APIKEY)
