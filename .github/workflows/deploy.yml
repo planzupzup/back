@@ -86,17 +86,17 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # 기존 앱 종료
-            pkill -f 'java -jar' || echo "No running app found"
+            pkill -f "java -jar $JAR_NAME" || echo "No running app found"
 
             # 배포 디렉토리 이동
-            cd ${{ secrets.APP_DIR }}/build/libs
-            sleep 5
-
-            # 완전히 분리된 프로세스로 실행
-            nohup setsid java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 &
+            cd "$APP_DIR/build/libs" || exit 1
             sleep 2
 
-            if pgrep -f 'java -jar ${{ secrets.JAR_NAME }} > /dev/null; then
+            # 완전히 분리된 프로세스로 실행
+            nohup setsid java -jar "$JAR_NAME" > app.log 2>&1 &
+            sleep 2
+
+            if pgrep -f "java -jar $JAR_NAME" > /dev/null; then
               echo "App started successfully"
               exit 0   # 성공
             else
