@@ -73,7 +73,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
-          source: build/libs/${{ secrets.JAR_NAME }}
+          source: ${{ secrets.JAR_NAME }}
           target: ${{ secrets.APP_DIR }}
           port: 22
 
@@ -89,7 +89,8 @@ jobs:
             pkill -f 'java -jar' || echo "No running app found"
 
             # 배포 디렉토리 이동
-            cd ${{ secrets.APP_DIR }}
-
+            cd ${{ secrets.APP_DIR }}/build/libs
+            sleep 5
+            
             # 새 앱 실행
             nohup java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 & disown
