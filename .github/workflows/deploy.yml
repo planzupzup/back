@@ -92,4 +92,4 @@ jobs:
             cd ${{ secrets.APP_DIR }}
 
             # 새 앱 실행
-            nohup java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 &
+            nohup java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 & disown
