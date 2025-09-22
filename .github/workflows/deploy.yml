@@ -91,6 +91,9 @@ jobs:
             # 배포 디렉토리 이동
             cd ${{ secrets.APP_DIR }}/build/libs
             sleep 5
-            
-            # 새 앱 실행
-            nohup java -jar ${{ secrets.JAR_NAME }} > app.log 2>&1 & disown
+
+            # 완전히 분리된 프로세스로 실행
+            setsid java -jar *** > app.log 2>&1 < /dev/null &
+            sleep 3
+            echo "App started"
+    
