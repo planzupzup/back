@@ -44,7 +44,8 @@ public class SecurityConfig {
             "/.well-known/**",
             "/login/**",
             "/api/auth/logout",
-            "/**"
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     @Bean
