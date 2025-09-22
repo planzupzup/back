@@ -43,7 +43,8 @@ public class SecurityConfig {
             "/favicon.ico",
             "/.well-known/**",
             "/login/**",
-            "/api/auth/logout",
+            "/api/auth/**",
+            "/auth",
             "/swagger-ui/**",
             "/v3/api-docs/**"
     };
