@@ -45,6 +45,23 @@ public class LocationController {
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "지역저장이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
 
+    @PostMapping("/{planId}/v1")
+    public ResponseEntity<CommonResDto<List<List<LocationResDto>>>> createLocationV1(
+            @Valid @RequestBody List<List<LocationCreateReqDto>> locationCreateReqDto,
+            @PathVariable Long planId) {
+        locationService.createLocationV1(locationCreateReqDto, planId);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "지역저장이 성공적으로 되었습니다.", null), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/{planId}/v2")
+    public ResponseEntity<CommonResDto<List<List<LocationResDto>>>> createLocationV2(
+            @Valid @RequestBody List<List<LocationCreateReqDto>> locationCreateReqDto,
+            @PathVariable Long planId,
+            @RequestParam int batchSize) {
+        locationService.createLocationV2(locationCreateReqDto, planId, batchSize);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "지역저장이 성공적으로 되었습니다.", null), HttpStatus.CREATED);
+    }
+
     @Operation(summary = "지역 상세 조회", description = "특정 지역의 상세 정보를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "지역 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
