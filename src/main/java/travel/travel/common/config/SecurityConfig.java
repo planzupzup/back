@@ -39,6 +39,7 @@ public class SecurityConfig {
             "/api/plan/**",
             "/api/location/**",
             "/api/oauth2/**",
+            "/api/destination/**",
             "/oauth2/**",
             "/favicon.ico",
             "/.well-known/**",
