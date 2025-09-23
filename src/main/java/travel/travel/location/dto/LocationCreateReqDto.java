@@ -13,10 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "지역 생성 요청 DTO")
+@Schema(description = "장소 생성 요청 DTO")
 public class LocationCreateReqDto {
 
-    @Schema(description = "지역 이름", example = "경복궁")
+    @Schema(description = "장소 이름", example = "경복궁")
     @NotEmpty(message = "locationName는 필수입니다.")
     private String locationName;
 
@@ -24,7 +24,7 @@ public class LocationCreateReqDto {
     private double latitude;
     @Schema(description = "경도", example = "126.9770")
     private double longitude;
-    @Schema(description = "지역 설명", example = "조선시대 궁궐의 아름다운 건축물")
+    @Schema(description = "장소 설명", example = "조선시대 궁궐의 아름다운 건축물")
     private String description;
 
     @Schema(description = "평점", example = "4.5")

@@ -29,14 +29,14 @@ public class DestinationController {
 
     private final DestinationService destinationService;
 
-    @Operation(summary = "목적지 검색", description = "지역명 또는 국가명으로 목적지를 검색합니다.")
+    @Operation(summary = "목적지 검색", description = "장소명 또는 국가명으로 목적지를 검색합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "목적지 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
             @ApiResponse(responseCode = "404", description = "해당 장소를 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @GetMapping("/{map}")
     public ResponseEntity<CommonResDto<List<DestinationResDto>>> findDestination(
-            @Parameter(description = "지역명 또는 국가명") @PathVariable String map) {
+            @Parameter(description = "장소명 또는 국가명") @PathVariable String map) {
         List<DestinationResDto> dto = destinationService.findDestination(map);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "목적지 조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }

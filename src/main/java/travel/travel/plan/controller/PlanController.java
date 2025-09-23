@@ -68,9 +68,9 @@ public class PlanController {
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "계획생성이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "날짜별 계획 조회", description = "특정 계획의 특정 날짜에 해당하는 지역 목록을 조회합니다.")
+    @Operation(summary = "날짜별 계획 조회", description = "특정 계획의 특정 날짜에 해당하는 장소 목록을 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "날짜별 지역 목록 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "200", description = "날짜별 장소 목록 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
             @ApiResponse(responseCode = "404", description = "해당 계획을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @GetMapping("/{planId}/{day}")
@@ -82,7 +82,7 @@ public class PlanController {
                 ? planService.getPlanByDay(planId, day, authService.getAuthenticatedUserId())
                 : planService.getPlanByDay(planId, day);
 
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "날짜별 지역목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "날짜별 장소목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "계획 상세 조회", description = "특정 계획의 상세 정보를 조회합니다.")
