@@ -40,3 +40,7 @@ out/
 
 ### Mac OS ###
 .DS_Store
+
+### Application Config ###
+**/application.yml
+**/application.properties
