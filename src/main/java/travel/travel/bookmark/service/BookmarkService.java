@@ -2,6 +2,7 @@ package travel.travel.bookmark.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import travel.travel.bookmark.domain.Bookmark;
 import travel.travel.bookmark.repository.BookmarkRepository;
 import travel.travel.common.exception.CustomErrorCode;
@@ -13,6 +14,7 @@ import travel.travel.plan.repository.PlanRepository;
 
 import java.util.Optional;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class BookmarkService {
