@@ -11,7 +11,9 @@ import travel.travel.member.domain.Member;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "'like'")
+@Table(name = "'like'", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"comment_id", "member_id"})
+})
 @Builder
 public class Like {
 
