@@ -109,10 +109,10 @@ public class PlanController {
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
             ) {
 
-        PageApiResDto<PlanThumbResDto> dto = authService.isAuthenticatedUser()
-                ? planService.getAllPlan(page, size, authService.getAuthenticatedUserId())
-                : planService.getAllPlan(page, size);
-
+//        PageApiResDto<PlanThumbResDto> dto = authService.isAuthenticatedUser()
+//                ? planService.getAllPlan(page, size, authService.getAuthenticatedUserId())
+//                : planService.getAllPlan(page, size);
+        PageApiResDto<PlanThumbResDto> dto = planService.getAllPlan(page, size, 1L);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
