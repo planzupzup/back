@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import travel.travel.comment.domain.Comment;
+import travel.travel.comment.domain.CommentOwnership;
 
 
 @AllArgsConstructor
@@ -13,6 +14,7 @@ import travel.travel.comment.domain.Comment;
 @Builder
 public class CommentResDto {
     private Long commentId;
+    private CommentOwnership ownership;
     private String content;
     private Long parentId;
     private String nickName;
@@ -27,7 +29,7 @@ public class CommentResDto {
         return isLiked;
     }
 
-    public static CommentResDto of(Comment comment, boolean isLiked) {
+    public static CommentResDto of(Comment comment, CommentOwnership ownership, boolean isLiked) {
         return CommentResDto.builder()
                 .commentId(comment.getCommentId())
                 .nickName(comment.getMember().getNickName())
@@ -37,6 +39,7 @@ public class CommentResDto {
                 .content(comment.getContent())
                 .planId(comment.getPlan().getPlanId())
                 .likesCount(comment.getLike() == null ? 0 : comment.getLike().size())
+                .ownership(ownership)
                 .isLiked(isLiked)
                 .build();
     }

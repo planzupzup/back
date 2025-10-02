@@ -43,7 +43,7 @@ class LikeConcurrencyTest {
 
     @AfterEach
     void tearDown() {
-        likeRepository.deleteByCommentAndMember(testComment, testMember);
+        likeRepository.deleteByCommentIdAndMemberId(testComment.getCommentId(), testMember.getId());
     }
 
     @Test

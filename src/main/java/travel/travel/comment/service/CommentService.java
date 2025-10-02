@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import travel.travel.comment.domain.Comment;
+import travel.travel.comment.domain.CommentOwnership;
 import travel.travel.comment.domain.CommentSortType;
 import travel.travel.comment.dto.CommentCreateReqDto;
 import travel.travel.comment.dto.CommentResDto;
@@ -52,7 +53,7 @@ public class CommentService {
 
         Comment savedComment = commentRepository.save(CommentCreateReqDto.toEntity(commentCreateReqDto, member, parent, plan));
         boolean isLiked = likeRepository.existsByMemberAndComment(member, savedComment);
-        return CommentResDto.of(savedComment,isLiked);
+        return CommentResDto.of(savedComment, CommentOwnership.MINE, isLiked);
     }
 
     public PageApiResDto<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type) {
@@ -61,9 +62,9 @@ public class CommentService {
 
         Page<CommentResDto> commentResDto = switch (type) {
             case LATEST -> commentRepository.findByPlanAndParentIsNull(plan, pageable)
-                    .map(comment -> CommentResDto.of(comment, false));
+                    .map(comment -> CommentResDto.of(comment, CommentOwnership.OTHERS,false));
             case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParentIsNull(plan, pageable)
-                    .map(comment -> CommentResDto.of(comment, false));
+                    .map(comment -> CommentResDto.of(comment, CommentOwnership.OTHERS,false));
         };
 
         return PageApiResDto.of(commentResDto);
@@ -80,9 +81,20 @@ public class CommentService {
 
         Page<CommentResDto> commentResDto = switch (type) {
             case LATEST -> commentRepository.findByPlanAndParentIsNull(plan, pageable)
-                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+                    .map(comment -> {
+                        if (comment.getMember() == member)
+                            return CommentResDto.of(comment, CommentOwnership.MINE, likedSet.contains(comment.getCommentId()));
+                        else
+                            return CommentResDto.of(comment, CommentOwnership.OTHERS, likedSet.contains(comment.getCommentId()));
+                    });
             case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParentIsNull(plan, pageable)
-                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+                    .map(comment -> {
+                        if (comment.getMember() == member)
+                            return CommentResDto.of(comment, CommentOwnership.MINE, likedSet.contains(comment.getCommentId()));
+                        else
+                            return CommentResDto.of(comment, CommentOwnership.OTHERS, likedSet.contains(comment.getCommentId()));
+                    });
+
         };
 
         return PageApiResDto.of(commentResDto);
@@ -96,9 +108,9 @@ public class CommentService {
 
         Page<CommentResDto> commentResDto = switch (type) {
             case LATEST -> commentRepository.findByParent(parent, pageable)
-                    .map(comment -> CommentResDto.of(comment, false));
+                    .map(comment -> CommentResDto.of(comment, CommentOwnership.OTHERS,false));
             case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParent(parent, pageable)
-                    .map(comment -> CommentResDto.of(comment, false));
+                    .map(comment -> CommentResDto.of(comment, CommentOwnership.OTHERS,false));
         };
 
 
@@ -118,9 +130,19 @@ public class CommentService {
 
         Page<CommentResDto> commentResDto = switch (type) {
             case LATEST -> commentRepository.findByParent(parent, pageable)
-                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+                    .map(comment -> {
+                        if (comment.getMember() == member)
+                            return CommentResDto.of(comment, CommentOwnership.MINE, likedSet.contains(comment.getCommentId()));
+                        else
+                            return CommentResDto.of(comment, CommentOwnership.OTHERS, likedSet.contains(comment.getCommentId()));
+                    });
             case POPULAR -> commentRepository.findCommentsOrderByLikeCountAndParent(parent, pageable)
-                    .map(comment -> CommentResDto.of(comment, likedSet.contains(comment.getCommentId())));
+                    .map(comment -> {
+                        if (comment.getMember() == member)
+                            return CommentResDto.of(comment, CommentOwnership.MINE, likedSet.contains(comment.getCommentId()));
+                        else
+                            return CommentResDto.of(comment, CommentOwnership.OTHERS, likedSet.contains(comment.getCommentId()));
+                    });
         };
 
         return PageApiResDto.of(commentResDto);
@@ -137,12 +159,7 @@ public class CommentService {
 
         findComment.updateComment(commentUpdateReqDto.getContent());
         boolean isLiked = likeRepository.existsByMemberAndComment(member, findComment);
-        return CommentResDto.of(findComment, isLiked);
-    }
-
-    private Comment findComment(Long commentId) {
-        return commentRepository.findById(commentId)
-                        .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
+        return CommentResDto.of(findComment, CommentOwnership.MINE, isLiked);
     }
 
     public void deleteComment(Long commentId, Long memberId) {
@@ -168,4 +185,10 @@ public class CommentService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.MEMBER_NOT_FOUND));
     }
+
+    private Comment findComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.COMMENT_NOT_FOUND));
+    }
+
 }
