@@ -73,7 +73,7 @@ public class PlanService{
                 .toList();
 
         if (member.equals(existingPlan.getMember())) {
-            return PlanResDto.of(existingPlan, PlanOwnership.MINE, existingPlan.isPublic(), null);
+            return PlanResDto.of(existingPlan, PlanOwnership.MINE, existingPlan.isPublic(), filteredLocations);
         }
         boolean bookmarked = isBookmarked(member, existingPlan);
         return PlanResDto.of(existingPlan,  PlanOwnership.OTHERS, bookmarked, filteredLocations);
