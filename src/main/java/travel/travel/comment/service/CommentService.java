@@ -58,6 +58,11 @@ public class CommentService {
 
     public PageApiResDto<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type) {
         Plan plan = findPlan(planId);
+
+        if (!plan.isPublic()) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
 
         Page<CommentResDto> commentResDto = switch (type) {
@@ -73,6 +78,10 @@ public class CommentService {
     public PageApiResDto<CommentResDto> getCommentsByPost(Long planId, int page, int size, CommentSortType type, Long memberId) {
         Member member = getMember(memberId);
         Plan plan = findPlan(planId);
+
+        if (!plan.isPublic() && !plan.getMember().equals(member)) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
 
         List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
         Set<Long> likedSet = new HashSet<>(likedIds);
@@ -101,8 +110,12 @@ public class CommentService {
     }
 
     public PageApiResDto<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type) {
-        findPlan(planId);
+        Plan plan = findPlan(planId);
         Comment parent = findComment(commentId);
+
+        if (!plan.isPublic()) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime"));
 
@@ -120,8 +133,12 @@ public class CommentService {
     public PageApiResDto<CommentResDto> getCommentsByParent(Long planId, Long commentId, int page, int size, CommentSortType type, Long memberId) {
         Member member = getMember(memberId);
 
-        findPlan(planId);
+        Plan plan = findPlan(planId);
         Comment parent = findComment(commentId);
+
+        if (!plan.isPublic() && !plan.getMember().equals(member)) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
 
         List<Long> likedIds = likeRepository.findCommentIdsByMember(member);
         Set<Long> likedSet = new HashSet<>(likedIds);

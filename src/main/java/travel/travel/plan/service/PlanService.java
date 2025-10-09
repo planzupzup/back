@@ -55,6 +55,10 @@ public class PlanService{
     public PlanResDto getPlanByDay(Long planId, Integer day) {
         Plan existingPlan = findPlan(planId);
 
+        if (!existingPlan.isPublic()) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
+
         List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
                 .filter(location -> location.getDay().equals(day))
                 .map(LocationResDto::of)
@@ -75,12 +79,21 @@ public class PlanService{
         if (member.equals(existingPlan.getMember())) {
             return PlanResDto.of(existingPlan, PlanOwnership.MINE, existingPlan.isPublic(), filteredLocations);
         }
+
+        if (!existingPlan.isPublic()) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
+
         boolean bookmarked = isBookmarked(member, existingPlan);
         return PlanResDto.of(existingPlan,  PlanOwnership.OTHERS, bookmarked, filteredLocations);
     }
 
     public PlanResDto getPlan(Long planId) {
         Plan existingPlan = findPlan(planId);
+
+        if (!existingPlan.isPublic()) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
 
         List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
                 .map(LocationResDto::of)
@@ -100,6 +113,11 @@ public class PlanService{
         if (member.equals(existingPlan.getMember())) {
             return PlanResDto.of(existingPlan, PlanOwnership.MINE, existingPlan.isPublic(), filteredLocations);
         }
+
+        if (!existingPlan.isPublic()) {
+            throw new CustomException(CustomErrorCode.ACCESS_DENIED);
+        }
+
         boolean bookmarked = isBookmarked(member, existingPlan);
         return PlanResDto.of(existingPlan, PlanOwnership.OTHERS, bookmarked, filteredLocations);
     }
