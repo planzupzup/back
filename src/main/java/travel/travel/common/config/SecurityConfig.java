@@ -36,10 +36,7 @@ public class SecurityConfig {
 
     private final String[] whiteList = {
             "/",
-            "/api/plan/**",
-            "/api/location/**",
-            "/api/oauth2/**",
-            "/api/destination/**",
+            "/api/**",
             "/oauth2/**",
             "/favicon.ico",
             "/.well-known/**",
