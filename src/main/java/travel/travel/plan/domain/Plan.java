@@ -66,7 +66,7 @@ public class Plan extends BaseEntity {
         this.endDate = endDate;
     }
 
-    public void updatePublic(boolean isPublic) {
-        this.isPublic = !isPublic;
+    public void togglePublic() {
+        this.isPublic = !this.isPublic;
     }
 }

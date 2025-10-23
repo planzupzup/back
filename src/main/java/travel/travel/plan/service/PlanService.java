@@ -209,7 +209,7 @@ public class PlanService{
             throw new CustomException(CustomErrorCode.UPDATE_DENIED);
         }
 
-        findPlan.updatePublic(findPlan.isPublic());
+        findPlan.togglePublic();
         List<LocationResDto> filteredLocations = findPlan.getLocations().stream()
                 .map(LocationResDto::of)
                 .toList();
