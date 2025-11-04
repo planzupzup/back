@@ -53,7 +53,8 @@ public class PlanService{
     }
 
     public PlanResDto getPlanByDay(Long planId, Integer day) {
-        Plan existingPlan = findPlan(planId);
+        Plan existingPlan = planRepository.findByIdWithLocationsAndImages(planId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         if (!existingPlan.isPublic()) {
             throw new CustomException(CustomErrorCode.ACCESS_DENIED);
@@ -69,7 +70,8 @@ public class PlanService{
 
     public PlanResDto getPlanByDay(Long planId, Integer day, Long memberId) {
         Member member = getMember(memberId);
-        Plan existingPlan = findPlan(planId);
+        Plan existingPlan = planRepository.findByIdWithLocationsAndImages(planId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
                 .filter(location -> location.getDay().equals(day))
@@ -89,7 +91,8 @@ public class PlanService{
     }
 
     public PlanResDto getPlan(Long planId) {
-        Plan existingPlan = findPlan(planId);
+        Plan existingPlan = planRepository.findByIdWithLocationsAndImages(planId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         if (!existingPlan.isPublic()) {
             throw new CustomException(CustomErrorCode.ACCESS_DENIED);
@@ -104,7 +107,8 @@ public class PlanService{
 
     public PlanResDto getPlan(Long planId, Long memberId) {
         Member member = getMember(memberId);
-        Plan existingPlan = findPlan(planId);
+        Plan existingPlan = planRepository.findByIdWithLocationsAndImages(planId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
 
         List<LocationResDto> filteredLocations = existingPlan.getLocations().stream()
                 .map(LocationResDto::of)
@@ -184,7 +188,8 @@ public class PlanService{
     public PlanResDto updatePlan(Long planId, PlanUpdateReqDto planUpdateReqDto, Long memberId) {
         Member member = getMember(memberId);
 
-        Plan existingPlan = findPlan(planId);
+        Plan existingPlan = planRepository.findByIdWithLocationsAndImages(planId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
         if (!existingPlan.getMember().equals(member)) {
             throw new CustomException(CustomErrorCode.UPDATE_DENIED);
         }
@@ -204,7 +209,8 @@ public class PlanService{
     public PlanResDto updatePublicStatus(Long planId, Long memberId) {
         Member member = getMember(memberId);
 
-        Plan findPlan = findPlan(planId);
+        Plan findPlan = planRepository.findByIdWithLocationsAndImages(planId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
         if (!findPlan.getMember().equals(member)) {
             throw new CustomException(CustomErrorCode.UPDATE_DENIED);
         }

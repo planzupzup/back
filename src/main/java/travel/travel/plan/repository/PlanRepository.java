@@ -8,7 +8,12 @@ import org.springframework.data.repository.query.Param;
 import travel.travel.member.domain.Member;
 import travel.travel.plan.domain.Plan;
 
+import java.util.Optional;
+
 public interface PlanRepository extends JpaRepository<Plan, Long> {
+
+    @Query("SELECT DISTINCT p FROM Plan p LEFT JOIN FETCH p.locations l LEFT JOIN FETCH l.images WHERE p.planId = :planId")
+    Optional<Plan> findByIdWithLocationsAndImages(@Param("planId") Long planId);
 
     @Query("""
         SELECT p FROM Plan p
