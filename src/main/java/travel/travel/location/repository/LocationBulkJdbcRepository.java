@@ -14,8 +14,9 @@ import java.util.List;
 public class LocationBulkJdbcRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private int batchSize = 1000;
 
-    public void bulkInsertByDay(List<List<LocationCreateReqDto>> locationsByDay, Long planId, int batchSize) {
+    public void bulkInsertByDay(List<List<LocationCreateReqDto>> locationsByDay, Long planId) {
 
         String sql = "INSERT INTO location " +
                 "(day, description, google_image_url, latitude, location_name, " +

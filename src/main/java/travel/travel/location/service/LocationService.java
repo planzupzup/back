@@ -15,7 +15,6 @@ import travel.travel.plan.domain.Plan;
 import travel.travel.plan.repository.PlanRepository;
 
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,60 +27,7 @@ public class LocationService {
     private final PlanRepository planRepository;
     private final LocationBulkJdbcRepository locationBulkJdbcRepository;
 
-    public List<List<LocationResDto>> createLocation(List<List<LocationCreateReqDto>> locationCreateReqDtoList, Long planId) {
-        Plan findPlan = planRepository.findById(planId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
-        if (!findPlan.getLocations().isEmpty()) {
-            locationRepository.deleteAllByPlanId(findPlan.getPlanId());
-        }
-
-        List<List<LocationResDto>> result = new ArrayList<>();
-
-        Integer day = 1;
-        for (List<LocationCreateReqDto> dayLocationList : locationCreateReqDtoList) {
-            List<LocationResDto> dayResult = new ArrayList<>();
-            int order = 0;
-            for (LocationCreateReqDto locationDto : dayLocationList) {
-
-                validateDay(findPlan, day);
-                Location saved = locationRepository.save(
-                        LocationCreateReqDto.toEntity(locationDto, findPlan, day,order + 1));
-
-                dayResult.add(LocationResDto.of(saved));
-                order++;
-            }
-            day ++;
-            result.add(dayResult);
-        }
-        return result;
-    }
-
-
-    public void createLocationV1(List<List<LocationCreateReqDto>> locationCreateReqDtoList, Long planId) {
-        Plan findPlan = planRepository.findById(planId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
-        if (!findPlan.getLocations().isEmpty()) {
-            locationRepository.deleteAllByPlanId(findPlan.getPlanId());
-        }
-
-        Integer day = 1;
-        for (List<LocationCreateReqDto> dayLocationList : locationCreateReqDtoList) {
-            List<LocationResDto> dayResult = new ArrayList<>();
-            int order = 0;
-            validateDay(findPlan, day);
-
-            for (LocationCreateReqDto locationDto : dayLocationList) {
-                Location saved = locationRepository.save(
-                        LocationCreateReqDto.toEntity(locationDto, findPlan, day, order + 1));
-
-                dayResult.add(LocationResDto.of(saved));
-                order++;
-            }
-            day++;
-        }
-    }
-
-    public void createLocationV2(List<List<LocationCreateReqDto>> locationCreateReqDtoList, Long planId, int batchSize) {
+    public void createLocation(List<List<LocationCreateReqDto>> locationCreateReqDtoList, Long planId) {
         Plan findPlan = planRepository.findById(planId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PLAN_NOT_FOUND));
         if (!findPlan.getLocations().isEmpty()) {
@@ -94,7 +40,7 @@ public class LocationService {
             day++;
         }
 
-        locationBulkJdbcRepository.bulkInsertByDay(locationCreateReqDtoList, planId, batchSize);
+        locationBulkJdbcRepository.bulkInsertByDay(locationCreateReqDtoList, planId);
     }
 
     private void validateDay(Plan plan, Integer day) {

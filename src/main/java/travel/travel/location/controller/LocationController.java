@@ -38,27 +38,10 @@ public class LocationController {
             @ApiResponse(responseCode = "404", description = "해당 계획을 찾을 수 없습니다.", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @PostMapping("/{planId}")
-    public ResponseEntity<CommonResDto<List<List<LocationResDto>>>> createLocation(
+    public ResponseEntity<CommonResDto<Void>> createLocation(
             @Parameter(description = "날짜별 장소 데이터 (2차원 리스트: 날짜 > 장소)") @Valid @RequestBody List<List<LocationCreateReqDto>> locationCreateReqDto,
             @Parameter(description = "계획 ID") @PathVariable Long planId) {
-        List<List<LocationResDto>> dto = locationService.createLocation(locationCreateReqDto, planId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "장소저장이 성공적으로 되었습니다.", dto), HttpStatus.CREATED);
-    }
-
-    @PostMapping("/{planId}/v1")
-    public ResponseEntity<CommonResDto<List<List<LocationResDto>>>> createLocationV1(
-            @Valid @RequestBody List<List<LocationCreateReqDto>> locationCreateReqDto,
-            @PathVariable Long planId) {
-        locationService.createLocationV1(locationCreateReqDto, planId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "장소저장이 성공적으로 되었습니다.", null), HttpStatus.CREATED);
-    }
-
-    @PostMapping("/{planId}/v2")
-    public ResponseEntity<CommonResDto<List<List<LocationResDto>>>> createLocationV2(
-            @Valid @RequestBody List<List<LocationCreateReqDto>> locationCreateReqDto,
-            @PathVariable Long planId,
-            @RequestParam int batchSize) {
-        locationService.createLocationV2(locationCreateReqDto, planId, batchSize);
+        locationService.createLocation(locationCreateReqDto, planId);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.CREATED, "장소저장이 성공적으로 되었습니다.", null), HttpStatus.CREATED);
     }
 
