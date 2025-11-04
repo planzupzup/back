@@ -105,7 +105,7 @@ public class LocationService {
     }
 
     public LocationResDto getLocation(Long locationId) {
-        Location location = locationRepository.findById(locationId)
+        Location location = locationRepository.findByIdWithImages(locationId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.LOCATION_NOT_FOUND));
 
         return LocationResDto.of(location);
