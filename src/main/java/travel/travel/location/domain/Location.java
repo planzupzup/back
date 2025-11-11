@@ -45,4 +45,28 @@ public class Location {
     @Builder.Default
     private List<String> images = new ArrayList<>();
 
+
+    public void updateInfo(
+            String locationName,
+            double latitude,
+            double longitude,
+            String description,
+            String googleImageUrl,
+            double rating,
+            String types,
+            String placeId,
+            List<String> images
+    ) {
+        this.locationName = locationName;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.description = description;
+        this.rating = rating;
+        this.googleImageUrl = googleImageUrl;
+        this.types = types;
+        this.placeId = placeId;
+        this.images.clear();
+        this.images.addAll(images);
+    }
+
 }

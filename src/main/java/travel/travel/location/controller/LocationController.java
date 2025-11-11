@@ -57,4 +57,12 @@ public class LocationController {
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "장소상세조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
+    @PutMapping("/{locationId}")
+    public ResponseEntity<CommonResDto<LocationResDto>> updateLocation(
+            @PathVariable Long locationId,
+            @Valid @RequestPart LocationCreateReqDto locationUpdateReqDto) {
+        LocationResDto dto = locationService.updateLocation(locationId, locationUpdateReqDto);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "지역변경이 성공적으로 되었습니다.", dto), HttpStatus.OK);
+    }
+
 }

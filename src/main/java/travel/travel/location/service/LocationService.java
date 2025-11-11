@@ -15,6 +15,7 @@ import travel.travel.plan.domain.Plan;
 import travel.travel.plan.repository.PlanRepository;
 
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,6 +55,24 @@ public class LocationService {
         Location location = locationRepository.findByIdWithImages(locationId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.LOCATION_NOT_FOUND));
 
+        return LocationResDto.of(location);
+    }
+
+    public LocationResDto updateLocation(Long locationId, LocationCreateReqDto locationUpdateReqDto) {
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.LOCATION_NOT_FOUND));
+
+        location.updateInfo(
+                locationUpdateReqDto.getLocationName(),
+                locationUpdateReqDto.getLatitude(),
+                locationUpdateReqDto.getLongitude(),
+                locationUpdateReqDto.getDescription(),
+                locationUpdateReqDto.getGoogleImageUrl(),
+                locationUpdateReqDto.getRating(),
+                locationUpdateReqDto.getTypes(),
+                locationUpdateReqDto.getPlaceId(),
+                locationUpdateReqDto.getImages() != null ? locationUpdateReqDto.getImages() : new ArrayList<>()
+        );
         return LocationResDto.of(location);
     }
 
