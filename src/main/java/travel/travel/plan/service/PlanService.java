@@ -223,7 +223,7 @@ public class PlanService{
         return PlanResDto.of(findPlan, PlanOwnership.MINE, findPlan.isPublic(), filteredLocations);
     }
 
-    public PlanResDto deletePlan(Long planId, Long memberId) {
+    public void deletePlan(Long planId, Long memberId) {
         Member member = getMember(memberId);
 
         Plan existingPlan = findPlan(planId);
@@ -232,7 +232,6 @@ public class PlanService{
         }
 
         planRepository.delete(existingPlan);
-        return PlanResDto.of(existingPlan, PlanOwnership.MINE, false, null);
     }
 
     private Plan findPlan(Long planId) {

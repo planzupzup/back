@@ -174,8 +174,8 @@ public class PlanController {
     public ResponseEntity<CommonResDto<PlanResDto>> deletePlan(
             @Parameter(description = "계획 ID") @PathVariable Long planId) {
         Long memberId = authService.getAuthenticatedUserId();
-        PlanResDto dto = planService.deletePlan(planId, memberId);
-        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획삭제가 성공적으로 되었습니다.", dto), HttpStatus.OK);
+        planService.deletePlan(planId, memberId);
+        return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획삭제가 성공적으로 되었습니다.", null), HttpStatus.OK);
     }
 
 }
