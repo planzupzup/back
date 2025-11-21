@@ -59,6 +59,45 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
 
     Page<Plan> findAllByIsPublicTrue(Pageable pageable);
 
+    @Query("""
+        SELECT p FROM Plan p
+        LEFT JOIN p.bookmark b
+        WHERE p.isPublic = true
+        GROUP BY p
+        ORDER BY COUNT(b) DESC
+    """)
+    Page<Plan> findAllByIsPublicTrueOrderByBookmarkCount(Pageable pageable);
+
+    @Query("""
+        SELECT p FROM Plan p
+        LEFT JOIN p.comments c
+        WHERE p.isPublic = true
+        GROUP BY p
+        ORDER BY COUNT(c) DESC
+    """)
+    Page<Plan> findAllByIsPublicTrueOrderByCommentCount(Pageable pageable);
+
+    @Query("SELECT p FROM Plan p WHERE p.isPublic = true OR p.member = :member")
+    Page<Plan> findAllByIsPublicTrueOrMember(@Param("member") Member member, Pageable pageable);
+
+    @Query("""
+        SELECT p FROM Plan p
+        LEFT JOIN p.bookmark b
+        WHERE p.isPublic = true OR p.member = :member
+        GROUP BY p
+        ORDER BY COUNT(b) DESC
+    """)
+    Page<Plan> findAllByIsPublicTrueOrMemberOrderByBookmarkCount(@Param("member") Member member, Pageable pageable);
+
+    @Query("""
+        SELECT p FROM Plan p
+        LEFT JOIN p.comments c
+        WHERE p.isPublic = true OR p.member = :member
+        GROUP BY p
+        ORDER BY COUNT(c) DESC
+    """)
+    Page<Plan> findAllByIsPublicTrueOrMemberOrderByCommentCount(@Param("member") Member member, Pageable pageable);
+
     Page<Plan> findByMember(Member member, Pageable pageable);
 
     Page<Plan> findByIsPublicAndMember(boolean b, Member member, Pageable pageable);

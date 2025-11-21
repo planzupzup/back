@@ -126,24 +126,36 @@ public class PlanService{
         return PlanResDto.of(existingPlan, PlanOwnership.OTHERS, bookmarked, filteredLocations);
     }
 
-    public PageApiResDto<PlanThumbResDto> getAllPlan(int page, int size) {
+    public PageApiResDto<PlanThumbResDto> getAllPlan(PlanSortType type, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<PlanThumbResDto> planDto = planRepository.findAllByIsPublicTrue(pageable)
-                .map(plan -> PlanThumbResDto.of(plan, false));
+        Page<PlanThumbResDto> planDto = switch (type) {
+            case COMMENT -> planRepository.findAllByIsPublicTrueOrderByCommentCount(pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, false));
+            case BOOKMARK -> planRepository.findAllByIsPublicTrueOrderByBookmarkCount(pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, false));
+            case LATEST -> planRepository.findAllByIsPublicTrue(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime")))
+                    .map(plan -> PlanThumbResDto.of(plan, false));
+        };
 
         return PageApiResDto.of(planDto);
-
     }
 
-    public PageApiResDto<PlanThumbResDto> getAllPlan(int page, int size, Long memberId) {
+    public PageApiResDto<PlanThumbResDto> getAllPlan(PlanSortType type, int page, int size, Long memberId) {
         Member member = getMember(memberId);
         List<Long> bookmarkedIds = bookmarkRepository.findPlanIdsByMember(member);
         Set<Long> bookmarkedSet = new HashSet<>(bookmarkedIds);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdTime"));
-        Page<PlanThumbResDto> planDto = planRepository.findAllByIsPublicTrue(pageable)
-                .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<PlanThumbResDto> planDto = switch (type) {
+            case COMMENT -> planRepository.findAllByIsPublicTrueOrMemberOrderByCommentCount(member, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+            case BOOKMARK -> planRepository.findAllByIsPublicTrueOrMemberOrderByBookmarkCount(member, pageable)
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+            case LATEST -> planRepository.findAllByIsPublicTrueOrMember(member, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime")))
+                    .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
+        };
 
         return PageApiResDto.of(planDto);
     }

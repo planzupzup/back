@@ -32,6 +32,8 @@ import travel.travel.plan.service.PlanService;
 
 import java.time.Duration;
 
+import static travel.travel.plan.domain.PlanSortType.LATEST;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -105,13 +107,14 @@ public class PlanController {
     @ApiResponse(responseCode = "200", description = "계획 목록 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @GetMapping
     public ResponseEntity<CommonResDto<PageApiResDto<PlanThumbResDto>>> getAllPlan(
+            @Parameter(description = "정렬 타입")   @RequestParam(defaultValue = "LATEST") PlanSortType type,
             @Parameter(description = "페이지 번호") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
             ) {
 
         PageApiResDto<PlanThumbResDto> dto = authService.isAuthenticatedUser()
-                ? planService.getAllPlan(page, size, authService.getAuthenticatedUserId())
-                : planService.getAllPlan(page, size);
+                ? planService.getAllPlan(type, page, size, authService.getAuthenticatedUserId())
+                : planService.getAllPlan(type, page, size);
         return new ResponseEntity<>(CommonResDto.of(HttpStatus.OK, "계획목록조회가 성공적으로 되었습니다.", dto), HttpStatus.OK);
     }
 
