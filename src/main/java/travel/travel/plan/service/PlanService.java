@@ -169,7 +169,7 @@ public class PlanService{
                     .map(plan -> PlanThumbResDto.of(plan, false));
             case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCountAndIsPublicTrue(keyword, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, false));
-            case LATEST -> planRepository.searchByKeywordAndIsPublicTrue(keyword, pageable)
+            case LATEST -> planRepository.searchByKeywordAndIsPublicTrue(keyword, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime")))
                     .map(plan -> PlanThumbResDto.of(plan, false));
         };
 
@@ -185,11 +185,11 @@ public class PlanService{
         Pageable pageable = PageRequest.of(page, size);
 
         Page<PlanThumbResDto> planDto = switch (type) {
-            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCountAndIsPublicTrue(keyword, pageable)
+            case COMMENT -> planRepository.searchByKeywordAndOrderByCommentCountAndIsPublicTrueOrMember(keyword, member, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
-            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCountAndIsPublicTrue(keyword, pageable)
+            case BOOKMARK -> planRepository.searchByKeywordAndOrderByBookmarkCountAndIsPublicTrueOrMember(keyword, member, pageable)
                     .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
-            case LATEST -> planRepository.searchByKeywordAndIsPublicTrue(keyword, pageable)
+            case LATEST -> planRepository.searchByKeywordAndIsPublicTrueOrMember(keyword, member, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdTime")))
                     .map(plan -> PlanThumbResDto.of(plan, bookmarkedSet.contains(plan.getPlanId())));
         };
 

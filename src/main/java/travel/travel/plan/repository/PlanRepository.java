@@ -57,6 +57,48 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     """)
     Page<Plan> searchByKeywordAndOrderByCommentCountAndIsPublicTrue(@Param("keyword") String keyword, Pageable pageable);
 
+    @Query("""
+        SELECT p FROM Plan p
+        LEFT JOIN p.destination d
+        WHERE (p.isPublic = true OR p.member = :member)
+        AND (
+            p.title LIKE %:keyword%
+            OR p.content LIKE %:keyword%
+            OR d.destinationName LIKE %:keyword%
+        )
+    """)
+    Page<Plan> searchByKeywordAndIsPublicTrueOrMember(@Param("keyword") String keyword, @Param("member") Member member, Pageable pageable);
+
+    @Query("""
+    SELECT p FROM Plan p
+    LEFT JOIN p.destination d
+    LEFT JOIN p.bookmark b
+    WHERE (p.isPublic = true OR p.member = :member)
+        AND (
+            p.title LIKE %:keyword%
+            OR p.content LIKE %:keyword%
+            OR d.destinationName LIKE %:keyword%
+        )
+    GROUP BY p
+    ORDER BY COUNT(b) DESC
+    """)
+    Page<Plan> searchByKeywordAndOrderByBookmarkCountAndIsPublicTrueOrMember(@Param("keyword") String keyword, @Param("member") Member member, Pageable pageable);
+
+    @Query("""
+        SELECT p FROM Plan p
+        LEFT JOIN p.destination d
+        LEFT JOIN p.comments c
+        WHERE (p.isPublic = true OR p.member = :member)
+        AND (
+            p.title LIKE %:keyword%
+            OR p.content LIKE %:keyword%
+            OR d.destinationName LIKE %:keyword%
+        )
+        GROUP BY p
+        ORDER BY COUNT(c) DESC
+    """)
+    Page<Plan> searchByKeywordAndOrderByCommentCountAndIsPublicTrueOrMember(@Param("keyword") String keyword, @Param("member") Member member, Pageable pageable);
+
     Page<Plan> findAllByIsPublicTrue(Pageable pageable);
 
     @Query("""
